@@ -33,6 +33,9 @@ target-version = "py312"
 select = ["E", "F", "I", "UP", "B"]
 ignore = ["B008"]  # typer.Option defaults are idiomatic
 
+[tool.ruff.lint.per-file-ignores]
+"receipt/viewer.py" = ["E501"]  # inline CSS
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 

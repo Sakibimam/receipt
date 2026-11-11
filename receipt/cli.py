@@ -203,5 +203,16 @@ def mcp(
     main(host=host, port=port, transport="stdio" if stdio else "streamable-http")
 
 
+@app.command()
+def show(
+    files: list[Path],
+    out: Path = typer.Option(Path("runs/report.html"), help="Where to write the HTML page."),
+) -> None:
+    """Render receipts side by side as one static HTML page (no JS, no network)."""
+    from receipt.viewer import write_report
+
+    typer.echo(f"wrote {write_report(files, out)}")
+
+
 if __name__ == "__main__":
     app()
