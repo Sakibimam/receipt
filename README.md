@@ -27,7 +27,7 @@ The last two are what make this more than a signed log. A signature only proves 
 ## 60-second quickstart
 
 ```bash
-git clone https://github.com/SakibImam/receipt && cd receipt
+git clone https://github.com/Sakibimam/receipt && cd receipt
 uv sync
 
 # No key needed: verify the real receipts from our live demo runs
@@ -140,9 +140,9 @@ Prompts and outputs are committed as sha256 hashes (`messages_sha256`, `content_
 
 ## Hackathon links
 
-- Branch: [`devs-wilding`](https://github.com/SakibImam/receipt/tree/devs-wilding)
-- Baseline before Otari: [`961317a`](https://github.com/SakibImam/receipt/commit/961317a)
-- First Otari commit: [`80f9a05`](https://github.com/SakibImam/receipt/commit/80f9a055453a673296389f4ca124516031d5d0ff)
+- Branch: [`devs-wilding`](https://github.com/Sakibimam/receipt/tree/devs-wilding)
+- Baseline before Otari: [`961317a`](https://github.com/Sakibimam/receipt/commit/961317a)
+- First Otari commit: [`80f9a05`](https://github.com/Sakibimam/receipt/commit/80f9a055453a673296389f4ca124516031d5d0ff)
 - Feedback on Otari: [FEEDBACK.md](FEEDBACK.md)
 
 ## Development
