@@ -191,5 +191,17 @@ def tamper(
     typer.echo(report.render())
 
 
+@app.command()
+def mcp(
+    host: str = typer.Option("127.0.0.1"),
+    port: int = typer.Option(8765),
+    stdio: bool = typer.Option(False, help="Use stdio instead of streamable HTTP."),
+) -> None:
+    """Serve receipt_verify and receipt_summarize over MCP (streamable HTTP at /mcp)."""
+    from receipt.mcp_server import main
+
+    main(host=host, port=port, transport="stdio" if stdio else "streamable-http")
+
+
 if __name__ == "__main__":
     app()

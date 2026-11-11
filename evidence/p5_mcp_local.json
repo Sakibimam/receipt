@@ -1,0 +1,41 @@
+{
+  "captured_at": "2026-11-11T17:58:30.135122+00:00",
+  "transport": "streamable-http",
+  "url": "http://127.0.0.1:8765/mcp",
+  "live_otari": false,
+  "note": "Local MCP server, official mcp Python SDK client. Receipts are the live Otari demo runs.",
+  "calls": [
+    {
+      "tool": "receipt_summarize",
+      "file": "runs/a/receipt.json",
+      "verdict": "PASS",
+      "failing_events": [],
+      "summary": "Agent 'research-agent' session ses_0e932c3d1e874bff via otari.\n3 requests across 2 model(s), $0.000459 of a $0.004 budget.\n0 web source(s), 0 fallback(s).\nVerifier verdict: PASS."
+    },
+    {
+      "tool": "receipt_summarize",
+      "file": "runs/b/receipt.json",
+      "verdict": "FAIL",
+      "failing_events": [
+        2,
+        3,
+        7,
+        8
+      ],
+      "summary": "Agent 'research-agent (rogue)' session ses_a9fe8bd81d4849b5 via otari.\n6 requests across 2 model(s), $0.004144 of a $0.004 budget.\n0 web source(s), 0 fallback(s).\n4 mandate violation(s):\n- event 2: allowed_models (blocked before sending: model anthropic/claude-fable-5 not allowed)\n- event 3: allowed_tools (blocked before sending: tool otari_web_fetch not allowed)\n- event 7: budget_usd (spend 0.004144 > budget 0.004)\n- event 8: budget_usd (blocked before sending: spent 0.004144 of 0.004)\nVerifier verdict: FAIL."
+    },
+    {
+      "tool": "receipt_summarize",
+      "file": "runs/a/receipt.tampered.json",
+      "verdict": "FAIL",
+      "failing_events": [
+        1
+      ],
+      "summary": "Agent 'research-agent' session ses_0e932c3d1e874bff via otari.\n3 requests across 2 model(s), $0.000459 of a $0.004 budget.\n0 web source(s), 0 fallback(s).\nINTEGRITY FAILURE: signature, hash chain, recomputed totals \u2014 do not trust this receipt.\nVerifier verdict: FAIL."
+    }
+  ],
+  "tools": [
+    "receipt_verify",
+    "receipt_summarize"
+  ]
+}
