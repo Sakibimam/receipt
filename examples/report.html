@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Receipt report</title>
+<style>
+:root{
+  --counter:#d6dde3; --counter-ink:#33414d; --paper:#fbfbf6; --ink:#1d2731;
+  --faint:#6b7782; --rule:#c9cdd0; --ok:#17795a; --bad:#b3261e; --warn:#9a5b00;
+  --flag:#fbe9e7;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --counter:#1b232b; --counter-ink:#b9c4cd; --paper:#eeeee6; --ink:#1d2731;
+    --faint:#5d6973; --rule:#c4c7c7; --flag:#f6dcd8;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--counter);color:var(--counter-ink);
+  font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}
+.page{max-width:1240px;margin:0 auto;padding:40px 16px 64px}
+.intro{max-width:62ch;margin:0 0 36px}
+.intro h1{font-size:clamp(28px,4vw,40px);line-height:1.15;margin:0 0 12px;color:var(--counter-ink);
+  font-weight:700;letter-spacing:-.01em}
+.intro p{margin:0 0 8px}
+.counter{display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap}
+.slip{position:relative;flex:1 1 340px;max-width:400px;background:var(--paper);color:var(--ink);
+  font:13.5px/1.45 ui-monospace,"SF Mono",Menlo,Consolas,monospace;padding:28px 22px 30px;
+  box-shadow:0 1px 0 rgba(0,0,0,.08),0 14px 30px -18px rgba(20,30,40,.55)}
+.slip::before,.slip::after{content:"";position:absolute;left:0;right:0;height:10px;
+  background:linear-gradient(-45deg,transparent 7px,var(--paper) 0) 0 0/14px 10px repeat-x,
+             linear-gradient(45deg,transparent 7px,var(--paper) 0) 0 0/14px 10px repeat-x}
+.slip::before{top:-9px;transform:scaleY(-1)}
+.slip::after{bottom:-9px}
+.slip header{text-align:center;border-bottom:1px dashed var(--rule);padding-bottom:14px;margin-bottom:10px}
+.slip h2{font-size:17px;margin:0 0 2px}
+.slip header p{margin:0 0 10px;color:var(--faint);font-size:12px;word-break:break-all}
+.slip dl{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;margin:0;text-align:left;font-size:12px}
+.slip dt{color:var(--faint)} .slip dd{margin:0;word-break:break-all}
+.lines{list-style:none;margin:0;padding:0}
+.line{display:grid;grid-template-columns:2ch 1fr auto;gap:10px;padding:7px 4px;
+  border-bottom:1px dotted var(--rule);scroll-margin-top:24px}
+.line .idx{color:var(--faint)}
+.line b{font-weight:600;word-break:break-all}
+.line i{font-style:normal;color:var(--faint)}
+.line small{display:block;color:var(--faint);font-size:11.5px}
+.line .amt{text-align:right;white-space:nowrap}
+.line.flagged{background:var(--flag);box-shadow:inset 3px 0 0 var(--bad)}
+.line .why{display:block;color:var(--bad);font-size:11.5px;margin-top:2px}
+.line:target{outline:2px solid var(--bad);outline-offset:-2px}
+.total{display:flex;justify-content:space-between;align-items:baseline;border-top:2px solid var(--ink);
+  border-bottom:2px solid var(--ink);margin:14px 0 10px;padding:8px 0;font-size:14px}
+.total strong{font-size:20px}
+.budget{margin:0 0 14px;font-size:12px;color:var(--faint)}
+.budget .bar{height:6px;background:#e4e6e3;margin-bottom:4px}
+.budget .bar i{display:block;height:100%;background:var(--ok)}
+.budget.over .bar i{background:var(--bad)} .budget.over span{color:var(--bad)}
+.models{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:6px}
+.models th{text-align:left;font-weight:600;color:var(--faint);border-bottom:1px solid var(--rule);padding:4px 0}
+.models td{padding:4px 0;vertical-align:top;word-break:break-all}
+.models td+td,.models th+th{text-align:right;padding-left:8px;word-break:normal}
+.slip section{border-top:1px dashed var(--rule);margin-top:12px;padding-top:10px}
+.slip h3{font-size:13px;margin:0 0 6px}
+.slip ul{margin:0;padding:0;list-style:none}
+.sources li{margin:2px 0;word-break:break-all;font-size:12px}
+.sources a{color:var(--ink)}
+.violations{color:var(--bad)} .violations a{color:var(--bad);font-weight:600}
+.violations li{margin:3px 0;font-size:12px}
+.checks li{display:flex;gap:8px;font-size:12px;margin:2px 0}
+.checks li small{color:var(--faint)}
+.checks .ok span{color:var(--ok)} .checks .bad{color:var(--bad)}
+.slip footer{margin-top:14px;border-top:1px dashed var(--rule);padding-top:10px;text-align:center;
+  font-size:11px;color:var(--faint)}
+.slip footer p{margin:2px 0;word-break:break-all}
+.stamp{position:absolute;top:110px;right:14px;transform:rotate(-11deg);font:800 26px/1
+  -apple-system,"Helvetica Neue",Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;
+  padding:8px 14px;border:4px double currentColor;border-radius:6px;opacity:.86;
+  mix-blend-mode:multiply;pointer-events:none;animation:press .5s cubic-bezier(.2,1.6,.4,1) .2s both}
+.verified .stamp{color:var(--ok)} .failed .stamp{color:var(--bad)}
+.tampered .stamp{color:var(--warn);transform:rotate(8deg)}
+@keyframes press{from{opacity:0;transform:scale(1.6) rotate(-11deg)}}
+@media (prefers-reduced-motion:reduce){.stamp{animation:none}}
+@media (max-width:480px){.slip{max-width:none}.stamp{font-size:20px;top:96px}}
+a:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+.how{max-width:62ch;margin:48px 0 0;font-size:14px}
+.how h2{font-size:18px;margin:0 0 8px}
+.how code{font:13px ui-monospace,Menlo,monospace;background:rgba(255,255,255,.35);padding:1px 4px}
+@media print{body{background:#fff}.slip{box-shadow:none;border:1px solid #ccc}.stamp{animation:none}}
+</style></head>
+<body><main class="page">
+<div class="intro">
+  <h1>What each agent did, what it spent, and whether it kept to its mandate</h1>
+  <p>Every slip below was re-verified when this page was made: the Ed25519 signature, the hash
+  chain, the totals recomputed from each call, and every line checked against the mandate.
+  The stamp is the verifier's result, not the agent's claim.</p>
+</div>
+<div class="counter">
+<article class="slip verified" aria-labelledby="r0-title">
+  <div class="stamp" role="img" aria-label="Verifier result: Verified">Verified</div>
+  <header>
+    <h2 id="r0-title">research-agent</h2>
+    <p>examples/run_a.receipt.json</p>
+    <dl>
+      <dt>Session</dt><dd>ses_0e932c3d1e874bff</dd>
+      <dt>Gateway</dt><dd>otari</dd>
+      <dt>Started</dt><dd>2026-11-11T17:47:58.350Z</dd>
+      <dt>Mandate</dt><dd>research-brief-v1 (f889f099d5e4)</dd>
+    </dl>
+  </header>
+  <ol class="lines"><li class="line" id="r0-e0"><span class="idx">0</span><span class="what"><b>openai/gpt-oss-120b</b> <i>researcher</i><small>refused: 403 web_access_disabled · req 16d976bb</small></span><span class="amt">—</span></li>
+<li class="line" id="r0-e1"><span class="idx">1</span><span class="what"><b>openai/gpt-oss-120b</b> <i>researcher</i><small>1562 tokens · req 391ddc55</small></span><span class="amt">$0.000252</span></li>
+<li class="line" id="r0-e2"><span class="idx">2</span><span class="what"><b>alibaba/qwen3-235b-a22b-instruct-2507</b> <i>summarizer</i><small>838 tokens · req 5989b8a1</small></span><span class="amt">$0.000207</span></li>
+<li class="line" id="r0-e3"><span class="idx">3</span><span class="what"><b>otari_code_execution</b> <i>sandbox_verify</i><small>ran verifier in Otari sandbox · req ad77f716</small></span><span class="amt">—</span></li></ol>
+  <div class="total">
+    <span>Total, 3 requests</span><strong>$0.000459</strong>
+  </div>
+  <div class="budget">
+    <div class="bar"><i style="width:11.5%"></i></div>
+    <span>$0.000459 of $0.004000 budget</span>
+  </div>
+  <table class="models"><thead><tr><th>Model</th><th>Req</th><th>Tokens</th><th>Cost</th>
+  </tr></thead><tbody><tr><td>openai/gpt-oss-120b</td><td>2</td><td>1562</td><td>$0.000252</td></tr><tr><td>alibaba/qwen3-235b-a22b-instruct-2507</td><td>1</td><td>838</td><td>$0.000207</td></tr></tbody></table>
+  
+  <section><h3>Sources</h3><ul class="sources"><li>No web sources were returned in this session.</li></ul></section>
+  <section><h3>What the verifier checked</h3><ul class="checks"><li class="ok"><span>✓</span>schema</li><li class="ok"><span>✓</span>signature</li><li class="ok"><span>✓</span>hash chain</li><li class="ok"><span>✓</span>root hash</li><li class="ok"><span>✓</span>event count</li><li class="ok"><span>✓</span>mandate hash</li><li class="ok"><span>✓</span>recomputed totals</li><li class="ok"><span>✓</span>within mandate <small>mandate &#x27;research-brief-v1&#x27;</small></li></ul></section>
+  <footer>
+    <p>Signed by 99da0b4e5614b460…</p>
+    <p>Chain head 1094d8d93911455ba172bf63…</p>
+    <p class="sig">fAbstZD0dq5t1x7yy5dQYjkUtJEoXblvF+mW8UceeWto…</p>
+  </footer>
+</article>
+<article class="slip failed" aria-labelledby="r1-title">
+  <div class="stamp" role="img" aria-label="Verifier result: Failed">Failed</div>
+  <header>
+    <h2 id="r1-title">research-agent (rogue)</h2>
+    <p>examples/run_b.receipt.json</p>
+    <dl>
+      <dt>Session</dt><dd>ses_a9fe8bd81d4849b5</dd>
+      <dt>Gateway</dt><dd>otari</dd>
+      <dt>Started</dt><dd>2026-11-11T17:49:14.730Z</dd>
+      <dt>Mandate</dt><dd>research-brief-v1 (f889f099d5e4)</dd>
+    </dl>
+  </header>
+  <ol class="lines"><li class="line" id="r1-e0"><span class="idx">0</span><span class="what"><b>openai/gpt-oss-120b</b> <i>researcher</i><small>refused: 403 web_access_disabled · req c39024ba</small></span><span class="amt">—</span></li>
+<li class="line" id="r1-e1"><span class="idx">1</span><span class="what"><b>openai/gpt-oss-120b</b> <i>researcher</i><small>1560 tokens · req 05d20129</small></span><span class="amt">$0.000252</span></li>
+<li class="line flagged" id="r1-e2"><span class="idx">2</span><span class="what"><b>anthropic/claude-fable-5</b> <i>rogue-upgrade</i><small>blocked before sending</small><span class="why">allowed_models: blocked before sending: model anthropic/claude-fable-5 not allowed</span></span><span class="amt">—</span></li>
+<li class="line flagged" id="r1-e3"><span class="idx">3</span><span class="what"><b>openai/gpt-oss-120b</b> <i>rogue-fetch</i><small>blocked before sending</small><span class="why">allowed_tools: blocked before sending: tool otari_web_fetch not allowed</span></span><span class="amt">—</span></li>
+<li class="line" id="r1-e4"><span class="idx">4</span><span class="what"><b>alibaba/qwen3-235b-a22b-instruct-2507</b> <i>summarizer</i><small>820 tokens · req 97767a21</small></span><span class="amt">$0.000199</span></li>
+<li class="line" id="r1-e5"><span class="idx">5</span><span class="what"><b>alibaba/qwen3-235b-a22b-instruct-2507</b> <i>rogue-polish</i><small>2304 tokens · req 8eead047</small></span><span class="amt">$0.001127</span></li>
+<li class="line" id="r1-e6"><span class="idx">6</span><span class="what"><b>alibaba/qwen3-235b-a22b-instruct-2507</b> <i>rogue-polish</i><small>4032 tokens · req e26f1bbf</small></span><span class="amt">$0.001283</span></li>
+<li class="line flagged" id="r1-e7"><span class="idx">7</span><span class="what"><b>alibaba/qwen3-235b-a22b-instruct-2507</b> <i>rogue-polish</i><small>4032 tokens · req 4ac5fabb</small><span class="why">budget_usd: spend 0.004144 &gt; budget 0.004</span></span><span class="amt">$0.001283</span></li>
+<li class="line flagged" id="r1-e8"><span class="idx">8</span><span class="what"><b>alibaba/qwen3-235b-a22b-instruct-2507</b> <i>rogue-polish</i><small>blocked before sending</small><span class="why">budget_usd: blocked before sending: spent 0.004144 of 0.004</span></span><span class="amt">—</span></li>
+<li class="line" id="r1-e9"><span class="idx">9</span><span class="what"><b>otari_code_execution</b> <i>sandbox_verify</i><small>ran verifier in Otari sandbox · req 0e14fa44</small></span><span class="amt">—</span></li></ol>
+  <div class="total">
+    <span>Total, 6 requests</span><strong>$0.004144</strong>
+  </div>
+  <div class="budget over">
+    <div class="bar"><i style="width:100.0%"></i></div>
+    <span>$0.004144 of $0.004000 budget</span>
+  </div>
+  <table class="models"><thead><tr><th>Model</th><th>Req</th><th>Tokens</th><th>Cost</th>
+  </tr></thead><tbody><tr><td>openai/gpt-oss-120b</td><td>2</td><td>1560</td><td>$0.000252</td></tr><tr><td>alibaba/qwen3-235b-a22b-instruct-2507</td><td>4</td><td>11188</td><td>$0.003892</td></tr></tbody></table>
+  <section class="violations"><h3>Outside the mandate</h3><ul><li><a href="#r1-e2">Line 2</a> allowed_models: blocked before sending: model anthropic/claude-fable-5 not allowed</li><li><a href="#r1-e3">Line 3</a> allowed_tools: blocked before sending: tool otari_web_fetch not allowed</li><li><a href="#r1-e7">Line 7</a> budget_usd: spend 0.004144 &gt; budget 0.004</li><li><a href="#r1-e8">Line 8</a> budget_usd: blocked before sending: spent 0.004144 of 0.004</li></ul></section>
+  <section><h3>Sources</h3><ul class="sources"><li>No web sources were returned in this session.</li></ul></section>
+  <section><h3>What the verifier checked</h3><ul class="checks"><li class="ok"><span>✓</span>schema</li><li class="ok"><span>✓</span>signature</li><li class="ok"><span>✓</span>hash chain</li><li class="ok"><span>✓</span>root hash</li><li class="ok"><span>✓</span>event count</li><li class="ok"><span>✓</span>mandate hash</li><li class="ok"><span>✓</span>recomputed totals</li><li class="bad"><span>✗</span>within mandate <small>4 violation(s)</small></li></ul></section>
+  <footer>
+    <p>Signed by 99da0b4e5614b460…</p>
+    <p>Chain head 56758f764bc559719d35a110…</p>
+    <p class="sig">rQegJQVeLXDTELkVaBUZOMwSIxy1GL3a+5vge3BjWDNB…</p>
+  </footer>
+</article>
+<article class="slip tampered" aria-labelledby="r2-title">
+  <div class="stamp" role="img" aria-label="Verifier result: Tampered">Tampered</div>
+  <header>
+    <h2 id="r2-title">research-agent</h2>
+    <p>examples/run_a.tampered.json</p>
+    <dl>
+      <dt>Session</dt><dd>ses_0e932c3d1e874bff</dd>
+      <dt>Gateway</dt><dd>otari</dd>
+      <dt>Started</dt><dd>2026-11-11T17:47:58.350Z</dd>
+      <dt>Mandate</dt><dd>research-brief-v1 (f889f099d5e4)</dd>
+    </dl>
+  </header>
+  <ol class="lines"><li class="line" id="r2-e0"><span class="idx">0</span><span class="what"><b>openai/gpt-oss-120b</b> <i>researcher</i><small>refused: 403 web_access_disabled · req 16d976bb</small></span><span class="amt">—</span></li>
+<li class="line flagged" id="r2-e1"><span class="idx">1</span><span class="what"><b>openai/gpt-oss-120b</b> <i>researcher</i><small>1562 tokens · req 391ddc55</small><span class="why">hash chain: chain broken</span></span><span class="amt">$0.000000</span></li>
+<li class="line" id="r2-e2"><span class="idx">2</span><span class="what"><b>alibaba/qwen3-235b-a22b-instruct-2507</b> <i>summarizer</i><small>838 tokens · req 5989b8a1</small></span><span class="amt">$0.000207</span></li>
+<li class="line" id="r2-e3"><span class="idx">3</span><span class="what"><b>otari_code_execution</b> <i>sandbox_verify</i><small>ran verifier in Otari sandbox · req ad77f716</small></span><span class="amt">—</span></li></ol>
+  <div class="total">
+    <span>Total, 3 requests</span><strong>$0.000459</strong>
+  </div>
+  <div class="budget">
+    <div class="bar"><i style="width:11.5%"></i></div>
+    <span>$0.000459 of $0.004000 budget</span>
+  </div>
+  <table class="models"><thead><tr><th>Model</th><th>Req</th><th>Tokens</th><th>Cost</th>
+  </tr></thead><tbody><tr><td>openai/gpt-oss-120b</td><td>2</td><td>1562</td><td>$0.000252</td></tr><tr><td>alibaba/qwen3-235b-a22b-instruct-2507</td><td>1</td><td>838</td><td>$0.000207</td></tr></tbody></table>
+  
+  <section><h3>Sources</h3><ul class="sources"><li>No web sources were returned in this session.</li></ul></section>
+  <section><h3>What the verifier checked</h3><ul class="checks"><li class="ok"><span>✓</span>schema</li><li class="bad"><span>✗</span>signature <small>Ed25519 signature invalid</small></li><li class="bad"><span>✗</span>hash chain <small>chain broken</small></li><li class="ok"><span>✓</span>root hash</li><li class="ok"><span>✓</span>event count</li><li class="ok"><span>✓</span>mandate hash</li><li class="bad"><span>✗</span>recomputed totals <small>differs: totals</small></li><li class="ok"><span>✓</span>within mandate <small>mandate &#x27;research-brief-v1&#x27;</small></li></ul></section>
+  <footer>
+    <p>Signed by 99da0b4e5614b460…</p>
+    <p>Chain head 1094d8d93911455ba172bf63…</p>
+    <p class="sig">fAbstZD0dq5t1x7yy5dQYjkUtJEoXblvF+mW8UceeWto…</p>
+  </footer>
+</article></div>
+<section class="how">
+  <h2>Check it yourself</h2>
+  <p>Run <code>receipt verify receipt.json --witness</code> to repeat these checks and also
+  reconcile every call with Otari's own usage ledger. Change any number in the file and the
+  stamp turns to Tampered.</p>
+</section>
+</main></body></html>
