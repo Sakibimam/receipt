@@ -34,3 +34,21 @@ def test_mock_client_records_event() -> None:
     assert r.ok and c.mock
     assert s.chain.events[0]["type"] == "llm_call"
     assert s.chain.events[0]["data"]["mock"] is True
+
+
+def test_timeout_is_chained_not_raised() -> None:
+    """Regression: a live APITimeoutError crashed the demo instead of being recorded."""
+    import httpx
+    from openai import APITimeoutError
+
+    s = Session(agent="t")
+    c = OtariClient(s, api_key="test-key-not-real", base_url="http://127.0.0.1:9")
+
+    class Boom:
+        def create(self, **_: object) -> None:
+            raise APITimeoutError(request=httpx.Request("POST", "http://x"))
+
+    c._sdk.chat.completions.with_raw_response = Boom()  # type: ignore[union-attr]
+    r = c.chat("m", [{"role": "user", "content": "x"}])
+    assert not r.ok and r.error and r.error["code"] == "timeout"
+    assert s.chain.events[-1]["type"] == "llm_error"

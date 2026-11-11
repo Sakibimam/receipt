@@ -1,0 +1,134 @@
+{
+  "captured_at": "2026-11-11T17:55:10.842091+00:00",
+  "live": true,
+  "command": "uv run receipt demo",
+  "run_a": {
+    "session_id": "ses_0e932c3d1e874bff",
+    "verdict": "VERIFIED",
+    "totals": {
+      "requests": 3,
+      "cost_usd": 0.000459,
+      "total_tokens": 2400,
+      "by_model": {
+        "openai/gpt-oss-120b": {
+          "requests": 2,
+          "errors": 1,
+          "prompt_tokens": 101,
+          "completion_tokens": 1461,
+          "total_tokens": 1562,
+          "cost_usd": 0.000252
+        },
+        "alibaba/qwen3-235b-a22b-instruct-2507": {
+          "requests": 1,
+          "errors": 0,
+          "prompt_tokens": 552,
+          "completion_tokens": 286,
+          "total_tokens": 838,
+          "cost_usd": 0.000207
+        }
+      }
+    },
+    "violations": [],
+    "request_ids": [
+      "16d976bb-d6b0-419a-84ca-a20443e9efc7",
+      "391ddc55-ec8d-480b-8491-c3f0487dff59",
+      "5989b8a1-28bb-47c8-8712-a44f7f3db794"
+    ],
+    "sandbox": {
+      "status": 200,
+      "container": "otari_cntr_610b524aecf84999bcce115dcfb045a0",
+      "request_id": "ad77f716-2de5-48db-931d-cd4142988845",
+      "stdout": {
+        "bad_events": [],
+        "budget_usd": 0.004,
+        "chain_ok": true,
+        "cost_usd": 0.000459,
+        "events_checked": 3,
+        "head": "2680b4741d38762b61547bb1a5a0a97c7376917de98dc7f1c187ea99c4f912b4",
+        "requests": 3,
+        "verifier": "receipt-sandbox/1",
+        "within_budget": true
+      }
+    },
+    "events_root_hash": "1094d8d93911455ba172bf63a9890183bab5adec7354f2189bc45e252b050145",
+    "signer_public_key": "99da0b4e5614b460014de9adf1d941d1fc185e0702276b0f1a20e588dd3542dd"
+  },
+  "run_b": {
+    "session_id": "ses_a9fe8bd81d4849b5",
+    "verdict": "FAILED",
+    "totals": {
+      "requests": 6,
+      "cost_usd": 0.004144,
+      "total_tokens": 12748,
+      "by_model": {
+        "openai/gpt-oss-120b": {
+          "requests": 2,
+          "errors": 1,
+          "prompt_tokens": 101,
+          "completion_tokens": 1459,
+          "total_tokens": 1560,
+          "cost_usd": 0.000252
+        },
+        "alibaba/qwen3-235b-a22b-instruct-2507": {
+          "requests": 4,
+          "errors": 0,
+          "prompt_tokens": 4915,
+          "completion_tokens": 6273,
+          "total_tokens": 11188,
+          "cost_usd": 0.003892
+        }
+      }
+    },
+    "violations": [
+      {
+        "event_index": 2,
+        "rule": "allowed_models",
+        "detail": "blocked before sending: model anthropic/claude-fable-5 not allowed"
+      },
+      {
+        "event_index": 3,
+        "rule": "allowed_tools",
+        "detail": "blocked before sending: tool otari_web_fetch not allowed"
+      },
+      {
+        "event_index": 7,
+        "rule": "budget_usd",
+        "detail": "spend 0.004144 > budget 0.004"
+      },
+      {
+        "event_index": 8,
+        "rule": "budget_usd",
+        "detail": "blocked before sending: spent 0.004144 of 0.004"
+      }
+    ],
+    "request_ids": [
+      "c39024ba-a19e-4b93-a1d5-df5315da4089",
+      "05d20129-0ccd-468b-b607-a3977e11a65e",
+      "97767a21-da40-490f-83af-c474dc4859ca",
+      "8eead047-df03-443f-8074-711ab5631d8d",
+      "e26f1bbf-0620-407e-924d-4eb04c8ab8a7",
+      "4ac5fabb-2491-486b-90c2-203d2ba6baaa"
+    ],
+    "sandbox": {
+      "status": 200,
+      "container": "otari_cntr_d9e18e86458a4c86b3555a96ec246a4b",
+      "request_id": "0e14fa44-ede6-4ce9-a223-123ad18beffd",
+      "stdout": {
+        "bad_events": [],
+        "budget_usd": 0.004,
+        "chain_ok": true,
+        "cost_usd": 0.004144,
+        "events_checked": 9,
+        "head": "b999cedf08956b4b199e8d3d25bcacf6dc15b27371ba631fc4e39a9d9e63707e",
+        "requests": 6,
+        "verifier": "receipt-sandbox/1",
+        "within_budget": false
+      }
+    },
+    "events_root_hash": "56758f764bc559719d35a11033ca31c3bd5b3429bf80b9fb3c48809a997eef5b",
+    "signer_public_key": "99da0b4e5614b460014de9adf1d941d1fc185e0702276b0f1a20e588dd3542dd"
+  },
+  "witness": "receipt verify --witness: run A 2/2, run B 5/5 calls match Otari ledger",
+  "tamper": "receipt tamper runs/a/receipt.json -> FAIL (signature, hash chain event 1, recomputed totals)",
+  "note": "Web search disabled in workspace during this run (403 web_access_disabled recorded as event 0)."
+}

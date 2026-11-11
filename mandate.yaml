@@ -9,8 +9,9 @@ allowed_tools:
   - otari_code_execution
 blocked_tools:
   - otari_web_fetch
-budget_usd: 0.02
+budget_usd: 0.004
 max_requests: 8
 end_user: demo-analyst
 end_user_budget: receipt-demo
 enforce: true
+require_sourced_citations: true   # every cited URL must come from an Otari web search result

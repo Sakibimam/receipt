@@ -66,3 +66,39 @@ def test_otari_budget_refusal_is_violation(key: Ed25519PrivateKey) -> None:
     )
     rep = verify_receipt(s.finalize(key))
     assert any(v["rule"] == "budget_exceeded" for v in rep.violations)
+
+
+def _summary_event(s: Session, content: str) -> None:
+    s.record(
+        "llm_call",
+        {
+            "request": {"model": "mock/a", "role": "summarizer", "tools": []},
+            "usage": {},
+            "content_preview": content,
+        },
+    )
+
+
+def test_unsourced_citation_flagged(key: Ed25519PrivateKey) -> None:
+    m = Mandate(**{**MANDATE.model_dump(), "require_sourced_citations": True})
+    s = Session(agent="t", mandate=m)
+    s.record(
+        "llm_call",
+        {
+            "request": {"model": "mock/a", "role": "researcher", "tools": []},
+            "usage": {},
+            "tool_calls": [{"type": "web_search", "sources": [{"url": "https://real.example/a"}]}],
+        },
+    )
+    _summary_event(s, "Good https://real.example/a. Bad 【https://made.up/x】.")
+    rep = verify_receipt(s.finalize(key))
+    rules = [(v["event_index"], v["rule"]) for v in rep.violations]
+    assert rules == [(1, "sourced_citations")]
+    assert "made.up" in rep.violations[0]["detail"]
+
+
+def test_no_citations_without_search_is_fine(key: Ed25519PrivateKey) -> None:
+    m = Mandate(**{**MANDATE.model_dump(), "require_sourced_citations": True})
+    s = Session(agent="t", mandate=m)
+    _summary_event(s, "Brief. Sources: none (live web search unavailable for this run).")
+    assert verify_receipt(s.finalize(key)).ok

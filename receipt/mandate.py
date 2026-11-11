@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 from typing import Any
 
@@ -12,6 +13,20 @@ from receipt.chain import canonical, sha256_hex
 
 CALL_EVENTS = ("llm_call", "llm_error")
 ENFORCED_ERROR_CODES = ("budget_exceeded", "guardrail_violation", "end_user_limit_reached")
+CITING_ROLES = ("summarizer",)
+URL_RE = re.compile(r"https?://[^\s)\]>\"'】]+")
+
+
+def norm_url(url: str) -> str:
+    return url.rstrip(".,;:/").lower()
+
+
+def cited_urls(text: str) -> list[str]:
+    seen: list[str] = []
+    for u in URL_RE.findall(text or ""):
+        if norm_url(u) not in map(norm_url, seen):
+            seen.append(u.rstrip(".,;:"))
+    return seen
 
 
 class Mandate(BaseModel):
@@ -26,6 +41,8 @@ class Mandate(BaseModel):
     # Client-side pre-check before each call (blocked calls are still signed in as
     # violation_attempt events). Otari-side enforcement happens regardless.
     enforce: bool = True
+    # Every URL the final writer cites must come from a web-search result in this chain.
+    require_sourced_citations: bool = False
 
     def digest(self) -> str:
         return sha256_hex(canonical(self.model_dump()))
@@ -66,6 +83,7 @@ def check_events(events: list[dict[str, Any]], mandate: Mandate) -> list[dict[st
     violations: list[dict[str, Any]] = []
     spent = 0.0
     requests = 0
+    found_sources: set[str] = set()
 
     def add(idx: int, rule: str, detail: str) -> None:
         violations.append({"event_index": idx, "rule": rule, "detail": detail})
@@ -96,6 +114,14 @@ def check_events(events: list[dict[str, Any]], mandate: Mandate) -> list[dict[st
         spent += float(data.get("usage", {}).get("cost_usd") or 0.0)
         if mandate.budget_usd and spent > mandate.budget_usd >= before:
             add(idx, "budget_usd", f"spend {spent:.6f} > budget {mandate.budget_usd}")
+        for tc in data.get("tool_calls", []):
+            found_sources |= {
+                norm_url(src["url"]) for src in tc.get("sources", []) if src.get("url")
+            }
+        if mandate.require_sourced_citations and req.get("role") in CITING_ROLES:
+            for url in cited_urls(data.get("content_preview", "")):
+                if norm_url(url) not in found_sources:
+                    add(idx, "sourced_citations", f"cites {url} but no web search returned it")
         code = (data.get("error") or {}).get("code")
         if typ == "llm_error" and code in ENFORCED_ERROR_CODES:
             add(idx, code, f"Otari refused: HTTP {data.get('status')} {code}")

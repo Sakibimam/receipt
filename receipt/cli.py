@@ -121,5 +121,75 @@ def ping(
     raise typer.Exit(0 if res.ok else 1)
 
 
+def _run_one(name: str, out_dir: Path, rogue: bool, mock: bool, mandate_path: Path) -> dict:
+    from receipt.agent import Models, run
+    from receipt.client import OtariClient
+    from receipt.mandate import load_mandate
+    from receipt.session import Session
+
+    mandate = load_mandate(mandate_path)
+    agent = "research-agent (rogue)" if rogue else "research-agent"
+    session = Session(agent=agent, mandate=mandate)
+    client = OtariClient(session, force_mock=mock)
+    session.gateway = client.gateway
+    result = run(session, client, Models.from_env(), rogue=rogue)
+    receipt = session.finalize(load_or_create_key())
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "receipt.json").write_text(json.dumps(receipt, indent=2, ensure_ascii=False))
+    label = "MOCK gateway (not Otari)" if result["mock"] else "live Otari"
+    brief = [f"# Run {name} — {agent}", "", f"_{label}_", "", result["brief"] or "(no brief)"]
+    sources = [f"- {u}" for u in result["sources"]] or ["(none returned)"]
+    brief += ["", "## Sources", *sources]
+    brief += ["", "## Otari sandbox verifier output", "```", result["sandbox"].strip(), "```"]
+    (out_dir / "brief.md").write_text("\n".join(brief) + "\n")
+    return receipt
+
+
+@app.command()
+def demo(
+    out: Path = typer.Option(Path("runs"), help="Output directory."),
+    mock: bool = typer.Option(False, help="Use the MockGateway instead of Otari."),
+    mandate: Path = typer.Option(Path("mandate.yaml")),
+    only: str = typer.Option("ab", help="Which runs: a, b or ab."),
+) -> None:
+    """Run A (compliant) and B (rogue) under the same mandate and sign both receipts."""
+    for name, rogue in (("a", False), ("b", True)):
+        if name not in only:
+            continue
+        typer.echo(f"== run {name.upper()} ({'rogue' if rogue else 'compliant'})")
+        receipt = _run_one(name, out / name, rogue, mock, mandate)
+        report = verify_receipt(receipt)
+        t = receipt["totals"]
+        typer.echo(
+            f"   {receipt['verdict']}: {t['requests']} requests, ${t['cost_usd']:.6f}, "
+            f"{len(receipt['violations'])} violation(s) -> {out / name / 'receipt.json'}"
+        )
+        typer.echo("   " + report.render().replace("\n", "\n   "))
+
+
+@app.command()
+def tamper(
+    file: Path,
+    out: Path | None = typer.Option(None, help="Defaults to <file>.tampered.json"),
+) -> None:
+    """Copy a receipt and change one number (the first call's cost) to show rejection."""
+    receipt = json.loads(file.read_text())
+    target = None
+    for ev in receipt["events"]:
+        if ev["type"] == "llm_call":
+            target = ev
+            break
+    if target is None:
+        typer.echo("no llm_call event to tamper with")
+        raise typer.Exit(1)
+    before = target["data"]["usage"]["cost_usd"]
+    target["data"]["usage"]["cost_usd"] = 0.0
+    dest = out or file.with_suffix(".tampered.json")
+    dest.write_text(json.dumps(receipt, indent=2, ensure_ascii=False))
+    typer.echo(f"event {target['index']}: cost_usd {before} -> 0.0, written to {dest}")
+    report = verify_receipt(receipt)
+    typer.echo(report.render())
+
+
 if __name__ == "__main__":
     app()

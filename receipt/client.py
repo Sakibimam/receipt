@@ -88,19 +88,24 @@ class OtariClient:
         base_url: str | None = None,
         force_mock: bool = False,
         keep_content: bool = True,
+        timeout: float = 180.0,
     ) -> None:
         load_dotenv()
         self.session = session
         self.keep_content = keep_content
+        self.timeout = timeout
         self.base_url = base_url or os.environ.get("OTARI_BASE_URL") or DEFAULT_BASE_URL
         key = api_key or os.environ.get("OTARI_API_KEY") or ""
+        self.api_key = key
         self.mock = force_mock or not key
         self._mock_gw = MockGateway()
         self._sdk = None
         if not self.mock:
             from openai import OpenAI
 
-            self._sdk = OpenAI(api_key=key, base_url=self.base_url, max_retries=0, timeout=120)
+            self._sdk = OpenAI(
+                api_key=key, base_url=self.base_url, max_retries=0, timeout=self.timeout
+            )
 
     @property
     def gateway(self) -> str:
@@ -204,7 +209,7 @@ class OtariClient:
         metadata: dict[str, str] | None,
         max_tokens: int | None,
     ) -> CallResult:
-        from openai import APIStatusError
+        from openai import APIConnectionError, APIStatusError
 
         assert self._sdk is not None
         extra_headers = {"Otari-End-User-Budget": end_user_budget} if end_user_budget else None
@@ -221,6 +226,15 @@ class OtariClient:
         try:
             raw = self._sdk.chat.completions.with_raw_response.create(
                 **kwargs, extra_headers=extra_headers, extra_body=extra_body or None
+            )
+        except APIConnectionError as exc:
+            # Timeouts / network failures are facts of the session too: chain them.
+            kind = "timeout" if "timed out" in str(exc).lower() else "connection_error"
+            return CallResult(
+                ok=False,
+                status=0,
+                model=model,
+                error={"code": kind, "detail": str(exc)[:MAX_TEXT]},
             )
         except APIStatusError as exc:
             body: Any
@@ -260,3 +274,64 @@ def normalize_usage(usage: dict[str, Any]) -> dict[str, Any]:
         "cost_usd_raw": None if usage.get("cost_usd") is None else str(usage.get("cost_usd")),
         "pricing_source": usage.get("pricing_source"),
     }
+
+
+def _local_python(code: str) -> dict[str, Any]:
+    """Mock sandbox: run code in a local subprocess. Labelled mock in the event."""
+    import subprocess
+    import sys
+
+    proc = subprocess.run(
+        [sys.executable, "-I", "-c", code], capture_output=True, text=True, timeout=60
+    )
+    return {"stdout": proc.stdout, "stderr": proc.stderr, "return_code": proc.returncode}
+
+
+def execute_code(client: OtariClient, code: str, label: str = "") -> CallResult:
+    """Run code in Otari's sandbox (POST /code/execute) and chain the result."""
+    import httpx
+
+    tool = "otari_code_execution"
+    request = {"tool": tool, "tools": [tool], "label": label, "code_sha256": sha256_hex(code)}
+    mandate = client.session.mandate
+    if mandate is not None and mandate.enforce and not mandate.tool_allowed(tool):
+        problems = [{"rule": "allowed_tools", "detail": f"tool {tool} not allowed"}]
+        event = client.session.record(
+            "violation_attempt",
+            {"gateway": client.gateway, "request": request, "problems": problems},
+        )
+        return CallResult(ok=False, status=0, model=tool, blocked=True, event=event)
+    if client.mock:
+        body, status, headers = _local_python(code), 200, {"Otari-Request-ID": "mock-sandbox"}
+    else:
+        r = httpx.post(
+            f"{client.base_url}/code/execute",
+            headers={"Authorization": f"Bearer {client.api_key}"},
+            json={"code": code, "container": "auto", "timeout_seconds": 60},
+            timeout=120,
+        )
+        status, headers = r.status_code, pick_headers(r.headers)
+        body = r.json() if r.headers.get("content-type", "").startswith("application/json") else {}
+    stdout = str(body.get("stdout", ""))[:MAX_TEXT]
+    ok = status == 200 and body.get("return_code") == 0
+    data = {
+        "gateway": client.gateway,
+        "mock": client.mock,
+        "request": request,
+        "status": status,
+        "headers": headers,
+        "stdout": stdout,
+        "stderr": str(body.get("stderr", ""))[:MAX_TEXT],
+        "tool_call": {
+            "id": headers.get("Otari-Request-ID"),
+            "type": "code_execution",
+            "status": "completed" if ok else "failed",
+            "exit_code": body.get("return_code"),
+        },
+    }
+    if status != 200:
+        data["error"] = {"code": body.get("code"), "detail": str(body.get("detail"))[:MAX_TEXT]}
+    event = client.session.record("sandbox_exec", data)
+    return CallResult(
+        ok=ok, status=status, model=tool, content=stdout, headers=headers, event=event
+    )
