@@ -1,0 +1,10 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+evidence/raw/
+*.key
+runs/
+.DS_Store
+.pytest_cache/
+.ruff_cache/
