@@ -1,0 +1,14 @@
+{
+  "captured_at": "2026-11-11T18:10:00Z",
+  "live": true,
+  "what": "Chat completion with inline mcp_servers (name, url, purpose_hint, allowed_tools) pointing at a public Receipt MCP server",
+  "status": 400,
+  "error_body": {
+    "code": null,
+    "detail": "This workspace does not let a request name MCP servers by URL. Use a stored server through mcp_server_ids, or ask a workspace admin to allow request MCP servers."
+  },
+  "notes": [
+    "Default workspace setting blocks request-level MCP servers; docs show inline mcp_servers without mentioning the setting.",
+    "Error has no machine-readable `code` (null), unlike budget_exceeded / web_access_disabled."
+  ]
+}

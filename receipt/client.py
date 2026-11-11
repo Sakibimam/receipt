@@ -122,12 +122,23 @@ class OtariClient:
         end_user_budget: str | None = None,
         metadata: dict[str, str] | None = None,
         max_tokens: int | None = None,
+        mcp_servers: list[dict[str, Any]] | None = None,
     ) -> CallResult:
+        tools = list(tools or [])
         request = {
             "model": model,
             "role": role,
             "messages": len(messages),
-            "tools": [t.get("type") for t in tools or []],
+            "tools": [t.get("type") for t in tools]
+            + [f"mcp:{m.get('name')}" for m in mcp_servers or []],
+            "mcp_servers": [
+                {
+                    "name": m.get("name"),
+                    "url": m.get("url"),
+                    "allowed_tools": m.get("allowed_tools"),
+                }
+                for m in mcp_servers or []
+            ],
             "user": user,
             "end_user_budget": end_user_budget,
             "metadata": metadata,
@@ -167,7 +178,7 @@ class OtariClient:
             self._mock_call(model, messages)
             if self.mock
             else self._live_call(
-                model, messages, tools, user, end_user_budget, metadata, max_tokens
+                model, messages, tools, user, end_user_budget, metadata, max_tokens, mcp_servers
             )
         )
         data = {
@@ -208,6 +219,7 @@ class OtariClient:
         end_user_budget: str | None,
         metadata: dict[str, str] | None,
         max_tokens: int | None,
+        mcp_servers: list[dict[str, Any]] | None = None,
     ) -> CallResult:
         from openai import APIConnectionError, APIStatusError
 
@@ -218,6 +230,8 @@ class OtariClient:
             extra_body["tools"] = tools
         if metadata:
             extra_body["metadata"] = metadata
+        if mcp_servers:
+            extra_body["mcp_servers"] = mcp_servers
         kwargs: dict[str, Any] = {"model": model, "messages": messages, "stream": False}
         if user:
             kwargs["user"] = user

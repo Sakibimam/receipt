@@ -39,3 +39,13 @@ def test_mcp_summarize_reports_violation(key: Ed25519PrivateKey) -> None:
 
 def test_mcp_bad_json() -> None:
     assert _call("receipt_verify", {"receipt_json": "nope"})["verdict"] == "FAIL"
+
+
+def test_mcp_check_by_session_id(tmp_path, monkeypatch, key: Ed25519PrivateKey) -> None:
+    r = make_receipt(key)
+    (tmp_path / "x").mkdir()
+    (tmp_path / "x" / "receipt.json").write_text(json.dumps(r))
+    monkeypatch.setenv("RECEIPT_DIR", str(tmp_path))
+    out = _call("receipt_check", {"session_id": r["session_id"]})
+    assert out["verdict"] == "PASS"
+    assert _call("receipt_check", {"session_id": "ses_nope"})["verdict"] == "UNKNOWN"

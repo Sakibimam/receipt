@@ -6,6 +6,8 @@ Tools: receipt_verify, receipt_summarize. Transport: streamable HTTP (or stdio).
 from __future__ import annotations
 
 import json
+import os
+from pathlib import Path
 from typing import Any
 
 from mcp.server.mcpserver import MCPServer
@@ -86,11 +88,57 @@ def receipt_summarize(receipt_json: str) -> dict[str, Any]:
     }
 
 
-def main(host: str = "127.0.0.1", port: int = 8765, transport: str = "streamable-http") -> None:
+def find_receipt(session_id: str, root: Path | None = None) -> Path | None:
+    root = root or Path(os.environ.get("RECEIPT_DIR", "runs"))
+    for path in sorted(root.glob("**/receipt.json")):
+        try:
+            if json.loads(path.read_text()).get("session_id") == session_id:
+                return path
+        except (OSError, json.JSONDecodeError):
+            continue
+    return None
+
+
+@server.tool()
+def receipt_check(session_id: str) -> dict[str, Any]:
+    """Look up a stored receipt by session id (e.g. ses_0e932c3d1e874bff) and verify it.
+
+    Use this when another agent tells you its session id instead of sending the file.
+    Returns the verifier verdict, spend, violations and a plain-language summary.
+    """
+    path = find_receipt(session_id.strip())
+    if path is None:
+        return {"verdict": "UNKNOWN", "error": f"no receipt stored for {session_id}"}
+    out = receipt_summarize(path.read_text())
+    out["session_id"] = session_id
+    return out
+
+
+def main(
+    host: str = "127.0.0.1",
+    port: int = 8765,
+    transport: str = "streamable-http",
+    public: bool = False,
+) -> None:
     if transport == "stdio":
         server.run("stdio")
-    else:
-        server.run("streamable-http", host=host, port=port, stateless_http=True, json_response=True)
+        return
+    kwargs: dict[str, Any] = {}
+    if public:
+        # Behind a tunnel the Host header is the tunnel's domain; the server is read-only.
+        from mcp.server.transport_security import TransportSecuritySettings
+
+        kwargs["transport_security"] = TransportSecuritySettings(
+            enable_dns_rebinding_protection=False
+        )
+    server.run(
+        "streamable-http",
+        host=host,
+        port=port,
+        stateless_http=True,
+        json_response=True,
+        **kwargs,
+    )
 
 
 if __name__ == "__main__":

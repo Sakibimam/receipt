@@ -196,11 +196,12 @@ def mcp(
     host: str = typer.Option("127.0.0.1"),
     port: int = typer.Option(8765),
     stdio: bool = typer.Option(False, help="Use stdio instead of streamable HTTP."),
+    public: bool = typer.Option(False, help="Accept any Host header (for a tunnel)."),
 ) -> None:
-    """Serve receipt_verify and receipt_summarize over MCP (streamable HTTP at /mcp)."""
+    """Serve receipt_verify, receipt_summarize, receipt_check over MCP (HTTP at /mcp)."""
     from receipt.mcp_server import main
 
-    main(host=host, port=port, transport="stdio" if stdio else "streamable-http")
+    main(host=host, port=port, transport="stdio" if stdio else "streamable-http", public=public)
 
 
 @app.command()
@@ -212,6 +213,50 @@ def show(
     from receipt.viewer import write_report
 
     typer.echo(f"wrote {write_report(files, out)}")
+
+
+@app.command()
+def audit(
+    mcp_url: str = typer.Option(..., help="Public URL of `receipt mcp --public` (…/mcp)."),
+    a: Path = typer.Option(Path("runs/a/receipt.json")),
+    b: Path = typer.Option(Path("runs/b/receipt.json")),
+    model: str = typer.Option("openai/gpt-oss-120b"),
+    out: Path = typer.Option(Path("runs/auditor/receipt.json")),
+) -> None:
+    """An Otari-hosted auditor model checks two agents' receipts through Otari MCP."""
+    from receipt.client import OtariClient
+    from receipt.session import Session
+
+    ids = [json.loads(p.read_text())["session_id"] for p in (a, b)]
+    session = Session(agent="auditor-agent", gateway="otari")
+    client = OtariClient(session)
+    servers = [
+        {
+            "name": "receipt",
+            "url": mcp_url,
+            "purpose_hint": "Verify signed receipts of other AI agents' sessions.",
+            "allowed_tools": ["receipt_check"],
+        }
+    ]
+    prompt = (
+        f"Two research agents submitted work. Agent A says its session is {ids[0]}. "
+        f"Agent B says its session is {ids[1]} and that it stayed within budget. "
+        "Call receipt_check on BOTH session ids, then answer in 3 short lines: which "
+        "agent's work to accept, which to reject, and the exact reason from the receipt."
+    )
+    res = client.chat(
+        model,
+        [{"role": "user", "content": prompt}],
+        role="auditor",
+        mcp_servers=servers,
+        max_tokens=1500,
+    )
+    receipt = session.finalize(load_or_create_key())
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(receipt, indent=2, ensure_ascii=False))
+    typer.echo(f"status {res.status}; tool calls: {json.dumps(res.tool_calls)}")
+    typer.echo(res.content or json.dumps(res.error))
+    raise typer.Exit(0 if res.ok else 1)
 
 
 if __name__ == "__main__":
