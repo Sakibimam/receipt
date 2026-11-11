@@ -101,6 +101,9 @@ def check_events(events: list[dict[str, Any]], mandate: Mandate) -> list[dict[st
             spent += float(data.get("usage", {}).get("cost_usd") or 0.0)
             if mandate.budget_usd and spent > mandate.budget_usd >= before:
                 add(idx, "budget_usd", f"spend {spent:.6f} > budget {mandate.budget_usd}")
+            code = (data.get("error") or {}).get("code")
+            if code in ENFORCED_ERROR_CODES:
+                add(idx, code, f"Otari refused code execution: HTTP {data.get('status')} {code}")
             continue
         if typ not in CALL_EVENTS:
             continue

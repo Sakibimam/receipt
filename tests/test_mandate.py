@@ -102,3 +102,20 @@ def test_no_citations_without_search_is_fine(key: Ed25519PrivateKey) -> None:
     s = Session(agent="t", mandate=m)
     _summary_event(s, "Brief. Sources: none (live web search unavailable for this run).")
     assert verify_receipt(s.finalize(key)).ok
+
+
+def test_otari_refusing_sandbox_is_violation(key: Ed25519PrivateKey) -> None:
+    """Regression: a 403 budget_exceeded on /code/execute was not counted as a violation."""
+    s = Session(agent="t", mandate=MANDATE)
+    s.record(
+        "sandbox_exec",
+        {
+            "request": {"tool": "otari_code_execution", "tools": ["otari_code_execution"]},
+            "status": 403,
+            "usage": {"cost_usd": 0.0},
+            "error": {"code": "budget_exceeded", "detail": "API key has $0.001 left"},
+            "tool_call": {"type": "code_execution", "status": "failed"},
+        },
+    )
+    rep = verify_receipt(s.finalize(key))
+    assert [(v["event_index"], v["rule"]) for v in rep.violations] == [(0, "budget_exceeded")]
