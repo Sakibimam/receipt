@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import base64
 import os
+import re
+import time
 from dataclasses import dataclass
 from typing import Any
 
@@ -20,6 +22,8 @@ TASK = (
     "with sources."
 )
 RESEARCH_TOOLS = [{"type": "otari_web_search", "max_uses": 3}]
+RETRYABLE = ("upstream_rate_limited", "timeout", "connection_error")
+REFUSALS = ("budget_exceeded", "end_user_limit_reached", "guardrail_violation")
 
 
 @dataclass
@@ -48,6 +52,11 @@ def research(client: OtariClient, model: str) -> CallResult:
         {"role": "user", "content": TASK},
     ]
     res = client.chat(model, msgs, role="researcher", tools=RESEARCH_TOOLS, max_tokens=1500)
+    for wait in (5, 15):  # every attempt is chained; the receipt shows the retries
+        if res.ok or (res.error or {}).get("code") not in RETRYABLE:
+            break
+        time.sleep(0 if client.mock else wait)
+        res = client.chat(model, msgs, role="researcher", tools=RESEARCH_TOOLS, max_tokens=1500)
     if not res.ok and (res.error or {}).get("code") == "web_access_disabled":
         # Workspace has web search off: the refusal is already chained; continue without it.
         res = client.chat(model, msgs, role="researcher", max_tokens=1500)
@@ -56,8 +65,11 @@ def research(client: OtariClient, model: str) -> CallResult:
 
 def summarize(client: OtariClient, model: str, notes: str, sources: list[str]) -> CallResult:
     if sources:
-        src = "\n".join(f"- {u}" for u in sources)
-        rule = "then a Sources list. Cite ONLY these exact URLs, no others."
+        src = "\n".join(f"[{i}] {u}" for i, u in enumerate(sources, 1))
+        rule = (
+            "citing facts inline as [n] using ONLY the numbered sources given. "
+            "Do not write any URLs and do not add a Sources list; it is added for you."
+        )
     else:
         src = "(none: live web search was unavailable)"
         rule = (
@@ -71,7 +83,13 @@ def summarize(client: OtariClient, model: str, notes: str, sources: list[str]) -
         },
         {"role": "user", "content": f"Task: {TASK}\n\nResearch notes:\n{notes}\n\nSources:\n{src}"},
     ]
-    return client.chat(model, msgs, role="summarizer", max_tokens=600)
+    res = client.chat(model, msgs, role="summarizer", max_tokens=600)
+    if res.ok and sources:
+        # Sources list is built from Otari's search results, never from model text.
+        used = sorted({int(n) for n in re.findall(r"\[(\d+)\]", res.content)})
+        cited = [f"[{n}] {sources[n - 1]}" for n in used if 1 <= n <= len(sources)]
+        res.content += "\n\nSources (from Otari web search):\n" + "\n".join(cited)
+    return res
 
 
 SANDBOX_CHECK = """
@@ -129,22 +147,23 @@ def run(session: Session, client: OtariClient, models: Models, rogue: bool) -> d
         )
     brief = summarize(client, models.summarizer, notes.content, sources)
     if rogue:
-        # Keep "polishing" with long rewrites until the mandate stops it.
+        # Keep "digging": more searches and long rewrites until something stops it.
         text = brief.content
         for i in range(12):
             r = client.chat(
-                models.summarizer,
+                models.researcher,
                 [
                     {
                         "role": "user",
-                        "content": "Rewrite this brief as an exhaustive 1500-word report with "
-                        f"every detail you know (pass {i + 1}):\n\n{text}",
+                        "content": "Search again and expand this into an exhaustive report with "
+                        f"every detail you can find (pass {i + 1}):\n\n{text[:4000]}",
                     }
                 ],
-                role="rogue-polish",
-                max_tokens=2000,
+                role="rogue-dig",
+                tools=[{"type": "otari_web_search", "max_uses": 1}],
+                max_tokens=1500,
             )
-            if r.blocked:
+            if r.blocked or (r.error or {}).get("code") in REFUSALS:
                 break
             text = r.content or text
     check = sandbox_verify(client)
