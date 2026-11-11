@@ -130,7 +130,11 @@ def _run_one(name: str, out_dir: Path, rogue: bool, mock: bool, mandate_path: Pa
     mandate = load_mandate(mandate_path)
     agent = "research-agent (rogue)" if rogue else "research-agent"
     session = Session(agent=agent, mandate=mandate)
-    client = OtariClient(session, force_mock=mock)
+    import os
+
+    # The rogue run can use its own key with a tiny Otari budget, so Otari refuses it too.
+    key = os.environ.get("OTARI_API_KEY_ROGUE") if rogue else None
+    client = OtariClient(session, api_key=key or None, force_mock=mock)
     session.gateway = client.gateway
     result = run(session, client, Models.from_env(), rogue=rogue)
     receipt = session.finalize(load_or_create_key())
