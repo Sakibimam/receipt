@@ -97,6 +97,10 @@ def check_events(events: list[dict[str, Any]], mandate: Mandate) -> list[dict[st
         if typ == "sandbox_exec":
             if not mandate.tool_allowed("otari_code_execution"):
                 add(idx, "allowed_tools", "code execution not allowed")
+            before = spent
+            spent += float(data.get("usage", {}).get("cost_usd") or 0.0)
+            if mandate.budget_usd and spent > mandate.budget_usd >= before:
+                add(idx, "budget_usd", f"spend {spent:.6f} > budget {mandate.budget_usd}")
             continue
         if typ not in CALL_EVENTS:
             continue

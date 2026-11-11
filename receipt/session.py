@@ -40,7 +40,7 @@ class Session:
         return sum(
             float(e["data"].get("usage", {}).get("cost_usd") or 0.0)
             for e in self.chain.events
-            if e["type"] in CALL_EVENTS
+            if e["type"] in (*CALL_EVENTS, "sandbox_exec")
         )
 
     def requests(self) -> int:

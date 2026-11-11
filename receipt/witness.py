@@ -43,7 +43,8 @@ def witness_events(
     rows: list[dict[str, Any]] = []
     for ev in events:
         data = ev.get("data", {})
-        if ev["type"] != "llm_call" or data.get("mock"):
+        priced_sandbox = ev["type"] == "sandbox_exec" and "usage" in data
+        if (ev["type"] != "llm_call" and not priced_sandbox) or data.get("mock"):
             continue
         rid = data.get("headers", {}).get("Otari-Request-ID")
         if not rid:

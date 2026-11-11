@@ -9,8 +9,8 @@ allowed_tools:
   - otari_code_execution
 blocked_tools:
   - otari_web_fetch
-budget_usd: 0.004
-max_requests: 8
+budget_usd: 0.015               # covers one $0.01 sandbox run; recalibrate once web search is on
+max_requests: 12
 end_user: demo-analyst
 end_user_budget: receipt-demo
 enforce: true

@@ -315,6 +315,7 @@ def execute_code(client: OtariClient, code: str, label: str = "") -> CallResult:
             {"gateway": client.gateway, "request": request, "problems": problems},
         )
         return CallResult(ok=False, status=0, model=tool, blocked=True, event=event)
+    ledger_cost: Any = None
     if client.mock:
         body, status, headers = _local_python(code), 200, {"Otari-Request-ID": "mock-sandbox"}
     else:
@@ -326,6 +327,13 @@ def execute_code(client: OtariClient, code: str, label: str = "") -> CallResult:
         )
         status, headers = r.status_code, pick_headers(r.headers)
         body = r.json() if r.headers.get("content-type", "").startswith("application/json") else {}
+        rid = headers.get("Otari-Request-ID")
+        if rid:
+            # /code/execute returns no cost; Otari's ledger has it (billed even on failure).
+            from receipt.witness import ledger_lookup
+
+            row = ledger_lookup(rid, client.api_key, client.base_url) or {}
+            ledger_cost = row.get("cost_usd")
     stdout = str(body.get("stdout", ""))[:MAX_TEXT]
     ok = status == 200 and body.get("return_code") == 0
     data = {
@@ -336,6 +344,10 @@ def execute_code(client: OtariClient, code: str, label: str = "") -> CallResult:
         "headers": headers,
         "stdout": stdout,
         "stderr": str(body.get("stderr", ""))[:MAX_TEXT],
+        "usage": {
+            **normalize_usage({"cost_usd": ledger_cost}),
+            "pricing_source": "otari_ledger" if ledger_cost is not None else None,
+        },
         "tool_call": {
             "id": headers.get("Otari-Request-ID"),
             "type": "code_execution",

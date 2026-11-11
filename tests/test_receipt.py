@@ -109,3 +109,27 @@ def test_canonical_payload_excludes_signature(key: Ed25519PrivateKey) -> None:
     r = make_receipt(key)
     assert '"signature"' not in signing_payload(r)
     assert canonical(copy.deepcopy(r)) == canonical(r)
+
+
+def test_sandbox_spend_counts_in_totals_and_budget(key: Ed25519PrivateKey) -> None:
+    """Regression: /code/execute is billed ($0.01) but receipts recorded it as free."""
+    from receipt.session import Session
+
+    tight = Mandate(**{**MANDATE.model_dump(), "budget_usd": 0.005})
+    s = Session(agent="t", mandate=tight)
+    s.record(
+        "sandbox_exec",
+        {
+            "request": {"tool": "otari_code_execution", "tools": ["otari_code_execution"]},
+            "status": 200,
+            "usage": {"cost_usd": 0.01},
+            "tool_call": {"type": "code_execution", "status": "completed", "exit_code": 0},
+        },
+    )
+    assert s.spent_usd() == 0.01
+    r = s.finalize(key)
+    assert r["totals"]["cost_usd"] == 0.01
+    assert r["totals"]["by_model"]["otari_code_execution"]["requests"] == 1
+    assert [v["rule"] for v in r["violations"]] == ["budget_usd"]
+    assert verify_receipt(r).ok is False  # over budget, but integrity holds
+    assert not failed(verify_receipt(r), "recomputed totals")

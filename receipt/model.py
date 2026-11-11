@@ -10,6 +10,7 @@ from receipt.mandate import CALL_EVENTS, Mandate, check_events
 
 RECEIPT_VERSION = "receipt/1.0"
 COST_PLACES = 8
+SANDBOX_KEY = "otari_code_execution"
 
 
 class ModelTotals(BaseModel):
@@ -82,6 +83,12 @@ def derive(events: list[dict[str, Any]], mandate: Mandate) -> dict[str, Any]:
         idx, typ, data = ev["index"], ev["type"], ev.get("data", {})
         if typ == "sandbox_exec" and data.get("tool_call"):
             tool_calls.append(ToolCall(event_index=idx, **data["tool_call"]))
+        if typ == "sandbox_exec" and "usage" in data:
+            st = totals.by_model.setdefault(SANDBOX_KEY, ModelTotals())
+            st.requests += 1
+            st.errors += 0 if data.get("status") == 200 else 1
+            cost = float(data["usage"].get("cost_usd") or 0.0)
+            st.cost_usd = round(st.cost_usd + cost, COST_PLACES)
         if typ not in CALL_EVENTS:
             continue
         model = data.get("request", {}).get("model", "?")

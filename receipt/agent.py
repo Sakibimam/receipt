@@ -87,7 +87,7 @@ for i, e in enumerate(d["events"]):
         bad.append(i)
     prev = e["hash"]
 calls = [e for e in d["events"] if e["type"] in ("llm_call", "llm_error")]
-cost = round(sum(float(e["data"].get("usage", {{}}).get("cost_usd") or 0) for e in calls), 8)
+cost = round(sum(float(e["data"].get("usage", {{}}).get("cost_usd") or 0) for e in d["events"]), 8)
 budget = d["budget_usd"]
 print(json.dumps({{
     "verifier": "receipt-sandbox/1", "chain_ok": not bad, "bad_events": bad,
