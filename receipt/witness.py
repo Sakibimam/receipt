@@ -38,7 +38,13 @@ def witness_events(
 ) -> list[dict[str, Any]]:
     """Return one result row per live call: matched / mismatch / missing."""
     load_dotenv()
-    api_key = api_key or os.environ.get("OTARI_API_KEY", "")
+    keys = (
+        [api_key]
+        if api_key
+        else [
+            k for k in (os.environ.get("OTARI_API_KEY"), os.environ.get("OTARI_API_KEY_ROGUE")) if k
+        ]
+    )
     base_url = base_url or os.environ.get("OTARI_BASE_URL") or DEFAULT_BASE_URL
     rows: list[dict[str, Any]] = []
     for ev in events:
@@ -49,10 +55,18 @@ def witness_events(
         rid = data.get("headers", {}).get("Otari-Request-ID")
         if not rid:
             continue
-        found = ledger_lookup(rid, api_key, base_url) if api_key else {"error": "no key"}
+        found: dict[str, Any] | None = {"error": "no key"}
+        for k in keys:  # a request id is only visible to keys allowed to see it
+            found = ledger_lookup(rid, k, base_url)
+            if found and "error" not in found:
+                break
         usage = data.get("usage", {})
         row: dict[str, Any] = {"event_index": ev["index"], "request_id": rid}
-        if not found or "error" in found:
+        refused_free = int(data.get("status") or 0) >= 400 and not float(usage.get("cost_usd") or 0)
+        if (not found or "error" in found) and refused_free:
+            # Refused before running: Otari bills nothing and keeps no row. Consistent.
+            row.update(status="matched", ledger=None, note="refused, not billed")
+        elif not found or "error" in found:
             row.update(status="missing", ledger=found)
         else:
             diffs = compare(usage, found)
