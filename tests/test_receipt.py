@@ -96,7 +96,9 @@ def test_budget_crossing_flags_one_event(key: Ed25519PrivateKey) -> None:
     tight = Mandate(**{**MANDATE.model_dump(), "budget_usd": 1e-9})
     r = make_receipt(key, mandate=tight)
     budget = [v for v in r["violations"] if v["rule"] == "budget_usd"]
-    assert [v["event_index"] for v in budget] == [0]
+    # event 0 is the call that crossed the budget; event 1 is the blocked follow-up
+    assert [v["event_index"] for v in budget] == [0, 1]
+    assert r["events"][1]["type"] == "violation_attempt"
 
 
 def test_schema_garbage_fails_cleanly() -> None:

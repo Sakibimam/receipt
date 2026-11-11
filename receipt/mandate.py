@@ -23,6 +23,9 @@ class Mandate(BaseModel):
     max_requests: int = 0
     end_user: str | None = None
     end_user_budget: str | None = None
+    # Client-side pre-check before each call (blocked calls are still signed in as
+    # violation_attempt events). Otari-side enforcement happens regardless.
+    enforce: bool = True
 
     def digest(self) -> str:
         return sha256_hex(canonical(self.model_dump()))

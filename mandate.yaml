@@ -1,0 +1,16 @@
+# The limits the demo agent must stay inside. Embedded in every receipt with its hash.
+name: research-brief-v1
+allowed_models:
+  - openai/gpt-oss-120b                     # researcher
+  - alibaba/qwen3-235b-a22b-instruct-2507   # summarizer
+  - receipt-research                         # Otari routing policy (fallback), if configured
+allowed_tools:
+  - otari_web_search
+  - otari_code_execution
+blocked_tools:
+  - otari_web_fetch
+budget_usd: 0.02
+max_requests: 8
+end_user: demo-analyst
+end_user_budget: receipt-demo
+enforce: true

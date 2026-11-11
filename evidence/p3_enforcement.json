@@ -1,0 +1,132 @@
+{
+  "captured_at": "2026-11-11T17:40:16.382Z",
+  "live": true,
+  "calls": [
+    {
+      "label": "disallowed model (client pre-check)",
+      "blocked": true,
+      "sent_to_otari": false,
+      "error": {
+        "code": "blocked_by_mandate",
+        "detail": [
+          {
+            "rule": "allowed_models",
+            "detail": "model anthropic/claude-fable-5 not allowed"
+          }
+        ]
+      }
+    },
+    {
+      "label": "allowed model with metadata.end_user + Otari-End-User-Budget",
+      "status": 200,
+      "headers": {
+        "Otari-Request-ID": "6cee38c3-7db4-40d4-8be8-4552a3f8c5f8",
+        "Otari-Model": "openai/gpt-oss-120b",
+        "Otari-Provider": "deepinfra",
+        "Otari-Fallback": "false",
+        "Otari-Attempt-Count": "1",
+        "Otari-Response-Duration-Ms": "13905"
+      },
+      "usage": {
+        "prompt_tokens": 64,
+        "completion_tokens": 299,
+        "total_tokens": 363,
+        "cost_usd": 5.3e-05,
+        "cost_usd_raw": "0.000053",
+        "pricing_source": "deployment"
+      }
+    },
+    {
+      "label": "web search while workspace has it disabled",
+      "status": 403,
+      "error": {
+        "code": "web_access_disabled",
+        "detail": "web search is not enabled for this workspace"
+      },
+      "headers": {
+        "Otari-Request-ID": "f8a65950-8884-429b-8e90-340b6a72f9e9",
+        "Otari-Error-Code": "web_access_disabled"
+      }
+    }
+  ],
+  "receipt_verdict": "FAILED",
+  "violations": [
+    {
+      "event_index": 0,
+      "rule": "allowed_models",
+      "detail": "blocked before sending: model anthropic/claude-fable-5 not allowed"
+    }
+  ],
+  "verifier": {
+    "ok": false,
+    "verdict": "FAIL",
+    "failing_events": [
+      0
+    ],
+    "violations": [
+      {
+        "event_index": 0,
+        "rule": "allowed_models",
+        "detail": "blocked before sending: model anthropic/claude-fable-5 not allowed"
+      }
+    ],
+    "checks": [
+      {
+        "name": "schema",
+        "ok": true,
+        "detail": "",
+        "events": []
+      },
+      {
+        "name": "signature",
+        "ok": true,
+        "detail": "",
+        "events": []
+      },
+      {
+        "name": "hash chain",
+        "ok": true,
+        "detail": "",
+        "events": []
+      },
+      {
+        "name": "root hash",
+        "ok": true,
+        "detail": "",
+        "events": []
+      },
+      {
+        "name": "event count",
+        "ok": true,
+        "detail": "",
+        "events": []
+      },
+      {
+        "name": "mandate hash",
+        "ok": true,
+        "detail": "",
+        "events": []
+      },
+      {
+        "name": "recomputed totals",
+        "ok": true,
+        "detail": "",
+        "events": []
+      },
+      {
+        "name": "within mandate",
+        "ok": false,
+        "detail": "1 violation(s)",
+        "events": [
+          0
+        ]
+      },
+      {
+        "name": "otari ledger witness",
+        "ok": true,
+        "detail": "1/1 calls match Otari's ledger",
+        "events": []
+      }
+    ]
+  }
+}

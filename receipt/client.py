@@ -77,6 +77,7 @@ class CallResult:
     tool_calls: list[dict[str, Any]] = field(default_factory=list)
     error: dict[str, Any] | None = None
     event: dict[str, Any] | None = None
+    blocked: bool = False
 
 
 class OtariClient:
@@ -128,6 +129,35 @@ class OtariClient:
             # Content is committed by hash so receipts can be shared without leaking prompts.
             "messages_sha256": sha256_hex(canonical(messages)),
         }
+        mandate = self.session.mandate
+        if mandate is not None:
+            # Map the mandate onto Otari enforcement: end-user tag + end-user budget.
+            if mandate.end_user and not metadata:
+                metadata = {"end_user": mandate.end_user}
+                request["metadata"] = metadata
+            if mandate.end_user_budget and not end_user_budget:
+                end_user_budget = mandate.end_user_budget
+                request["end_user_budget"] = end_user_budget
+            if mandate.enforce:
+                problems = mandate.precheck(
+                    model,
+                    [str(t) for t in request["tools"]],
+                    self.session.spent_usd(),
+                    self.session.requests(),
+                )
+                if problems:
+                    event = self.session.record(
+                        "violation_attempt",
+                        {"gateway": self.gateway, "request": request, "problems": problems},
+                    )
+                    return CallResult(
+                        ok=False,
+                        status=0,
+                        model=model,
+                        blocked=True,
+                        error={"code": "blocked_by_mandate", "detail": problems},
+                        event=event,
+                    )
         result = (
             self._mock_call(model, messages)
             if self.mock
