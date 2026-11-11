@@ -56,5 +56,67 @@ def mock_run(out: Path = typer.Option(Path("runs/mock/receipt.json"))) -> None:
     typer.echo(f"wrote {out} (MOCK gateway, not Otari)")
 
 
+@app.command()
+def models(contains: str = typer.Option("", help="Filter model ids by substring.")) -> None:
+    """List the Otari model catalog (GET /models)."""
+    import os
+
+    import httpx
+    from dotenv import load_dotenv
+
+    load_dotenv()
+    base = os.environ.get("OTARI_BASE_URL", "https://api.otari.ai/api/v1")
+    key = os.environ.get("OTARI_API_KEY", "")
+    if not key:
+        typer.echo("OTARI_API_KEY not set")
+        raise typer.Exit(1)
+    r = httpx.get(f"{base}/models", headers={"Authorization": f"Bearer {key}"}, timeout=30)
+    r.raise_for_status()
+    for m in r.json().get("data", []):
+        mid = m.get("id", "")
+        if contains.lower() in mid.lower():
+            typer.echo(mid)
+
+
+@app.command()
+def ping(
+    model: str = typer.Option(..., help="Open-weight model id on Otari."),
+    evidence: Path = typer.Option(Path("evidence/p1_first_call.json")),
+) -> None:
+    """One live, non-streaming call to Otari; saves redacted evidence."""
+    from receipt.chain import now_iso
+    from receipt.client import OtariClient
+    from receipt.session import Session
+
+    session = Session(agent="ping")
+    client = OtariClient(session)
+    if client.mock:
+        typer.echo("OTARI_API_KEY not set; refusing to write live evidence from the mock")
+        raise typer.Exit(1)
+    res = client.chat(
+        model,
+        [{"role": "user", "content": "Reply with one short sentence: what is a receipt?"}],
+        role="ping",
+        max_tokens=200,
+    )
+    record = {
+        "captured_at": now_iso(),
+        "live": True,
+        "endpoint": f"{client.base_url}/chat/completions",
+        "request_model": model,
+        "status": res.status,
+        "response_model": res.model,
+        "headers": res.headers,
+        "usage": res.usage,
+        "error": res.error,
+        "content_preview": res.content[:300],
+        "note": "Redacted: only Otari-* headers kept; no auth headers or keys.",
+    }
+    evidence.parent.mkdir(parents=True, exist_ok=True)
+    evidence.write_text(json.dumps(record, indent=2))
+    typer.echo(json.dumps(record, indent=2))
+    raise typer.Exit(0 if res.ok else 1)
+
+
 if __name__ == "__main__":
     app()

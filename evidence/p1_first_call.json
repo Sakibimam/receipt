@@ -1,0 +1,27 @@
+{
+  "captured_at": "2026-11-11T17:36:45.267Z",
+  "live": true,
+  "endpoint": "https://api.otari.ai/api/v1/chat/completions",
+  "request_model": "openai/gpt-oss-120b",
+  "status": 200,
+  "response_model": "openai/gpt-oss-120b",
+  "headers": {
+    "Otari-Request-ID": "9d4499a6-7993-40c5-a205-74c46cc1eec3",
+    "Otari-Model": "openai/gpt-oss-120b",
+    "Otari-Provider": "deepinfra",
+    "Otari-Fallback": "false",
+    "Otari-Attempt-Count": "1",
+    "Otari-Response-Duration-Ms": "4519"
+  },
+  "usage": {
+    "prompt_tokens": 65,
+    "completion_tokens": 86,
+    "total_tokens": 151,
+    "cost_usd": 1.7e-05,
+    "cost_usd_raw": "0.000017",
+    "pricing_source": "deployment"
+  },
+  "error": null,
+  "content_preview": "A receipt is a written acknowledgment that payment or goods have been received.",
+  "note": "Redacted: only Otari-* headers kept; no auth headers or keys."
+}
