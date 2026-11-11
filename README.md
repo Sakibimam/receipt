@@ -54,19 +54,24 @@ Without a key, `uv run receipt demo --mock` runs the same flow against a **MockG
 
 The same task runs twice under the same `mandate.yaml`: *"Research the current state of open-weight coding models and write a 150-word brief with sources."*
 
-- **Researcher:** `openai/gpt-oss-120b` with `otari_web_search` (max_uses 3).
-- **Summarizer:** `alibaba/qwen3-235b-a22b-instruct-2507` writes the brief.
+- **Researcher:** routing policy `receipt-research` (`openai/gpt-oss-120b`, falling back to Qwen3) with `otari_web_search` (max_uses 3).
+- **Summarizer:** `alibaba/qwen3-235b-a22b-instruct-2507` writes the brief, citing `[n]`. The Sources list is built by code from Otari's search results, never from model text.
 - **Final step:** the whole event chain so far is sent to Otari code execution. The sandbox recomputes every hash and the total spend using only the Python standard library, and its output is chained into the receipt.
 
-**Run A** follows the rules → `VERIFIED`, $0.000459, three requests.
-**Run B** is a rogue agent → `FAILED` with four violations, each tied to an exact event:
+**Run A** follows the rules → `VERIFIED`: three requests, three real web searches (14 sources) and $0.041197 including the $0.01 sandbox run. Every call matches Otari's ledger. Read the brief in [`examples/run_a.brief.md`](examples/run_a.brief.md).
+
+**Run B** is a rogue agent on its own API key, which has a $0.005/day Otari budget → `FAILED` with four violations, each tied to an exact event:
 
 ```
-! event 2: allowed_models — blocked before sending: model anthropic/claude-fable-5 not allowed
-! event 3: allowed_tools  — blocked before sending: tool otari_web_fetch not allowed
-! event 7: budget_usd     — spend 0.004144 > budget 0.004
-! event 8: budget_usd     — blocked before sending: spent 0.004144 of 0.004
+! event 1:  allowed_models  — blocked before sending: model anthropic/claude-fable-5 not allowed
+! event 2:  allowed_tools   — blocked before sending: tool otari_web_fetch not allowed
+! event 14: max_requests    — blocked before sending: limit 12 reached
+! event 15: budget_exceeded — Otari refused code execution: HTTP 403 budget_exceeded
 ```
+
+Along the way, event 13 shows a real routing fallback: `Otari-Fallback: true`, `Otari-Attempt-Count: 2`, served by Qwen3 after gpt-oss was busy.
+
+**An auditor agent** then checks both receipts *through Otari*. An Otari-hosted gpt-oss-120b calls Receipt's MCP tool `receipt_check` twice via inline `mcp_servers`, accepts A, and rejects B, naming all four violations ([`examples/auditor.receipt.json`](examples/auditor.receipt.json)).
 
 Blocked attempts never reach Otari, but they are still signed into the chain. A rogue agent can't hide what it *tried* to do.
 
@@ -103,20 +108,20 @@ Only items with a saved evidence file are marked live. Evidence is redacted: Ota
 
 | Feature | Where | Live on otari.ai? | Evidence |
 | --- | --- | --- | --- |
-| Open-weight models, two distinct roles (researcher, summarizer) | `receipt/agent.py` | ✅ live | `evidence/p4_demo_runs.json` |
+| Open-weight models, two distinct roles (researcher, summarizer) | `receipt/agent.py` | ✅ live | `evidence/p4_demo_runs.json`, `examples/run_a.receipt.json` |
 | Otari as an OpenAI-compatible gateway, headers and cost captured | `receipt/client.py` | ✅ live | `evidence/p1_first_call.json` |
-| Code execution (sandbox verifier) | `receipt/agent.py`, `execute_code` in `client.py` | ✅ live | `evidence/p4_demo_runs.json` |
-| Usage ledger as an independent check | `receipt/witness.py` | ✅ live | `evidence/p2_ledger_witness.json` |
-| Budget enforcement (mandate, client side) | `receipt/mandate.py` | ✅ live | `evidence/p4_demo_runs.json` |
-| Otari refusals captured as signed events (403 + `Otari-Error-Code`) | `receipt/client.py` | ✅ live | `evidence/p3_enforcement.json` |
-| Per-user budgets (`metadata.end_user` + `Otari-End-User-Budget`) | `receipt/client.py` | ⚠️ headers sent live; no Otari budget configured, so no Otari refusal seen | `evidence/p3_enforcement.json` |
-| Web search with sources | `receipt/agent.py`, `summarize_tool_calls` | ⚠️ code ready; workspace returned 403 `web_access_disabled` | `evidence/p3_enforcement.json` |
-| Routing policy / fallback (`Otari-Fallback`, `Otari-Attempt-Count`) | `receipt/client.py`, `receipt/model.py` | ⚠️ recorded on every call; policy not configured, so no fallback seen | `evidence/p1_first_call.json` |
-| Guardrails (`guardrail_violation` → violation) | `receipt/mandate.py` | ❌ not configured; tested with recorded fixtures only | `tests/test_mandate.py` |
-| MCP server (official SDK, streamable HTTP) | `receipt/mcp_server.py` | ✅ local, official client; ❌ Otari inline MCP refused by workspace setting | `evidence/p5_mcp_local.json`, `evidence/friction_mcp_request_url.json` |
+| Web search with sources (`otari_web_search`, `max_uses`) | `receipt/agent.py`, `summarize_tool_calls` | ✅ live, 14 sources in run A | `evidence/p6_web_search_routing.json` |
+| Routing policy (`receipt-research`) | `receipt/agent.py`, `mandate.yaml` | ✅ live | `evidence/p6_web_search_routing.json` |
+| Fallback (`Otari-Fallback: true`, `Otari-Attempt-Count: 2`) | `receipt/client.py`, `receipt/model.py` | ✅ live (run B event 13) | `evidence/p6_fallback_and_budget.json` |
+| Budgets enforced by Otari (key budget → 403 `budget_exceeded`, `Otari-Budget-Scope: api_token`) | `receipt/client.py`, `receipt/mandate.py` | ✅ live (run B event 15) | `evidence/p6_fallback_and_budget.json` |
+| Budget enforcement in the mandate (client pre-check + replay) | `receipt/mandate.py` | ✅ live | `evidence/p4_demo_runs.json` |
+| Per-end-user tagging (`metadata.end_user` + `Otari-End-User-Budget`) | `receipt/client.py` | ⚠️ sent live; we found no dashboard place for named end-user budgets, so the budget refusal above is per key | `evidence/p3_enforcement.json` |
+| Code execution (sandbox verifier, cost read from the ledger) | `receipt/agent.py`, `execute_code` in `client.py` | ✅ live | `evidence/p4_demo_runs.json` |
+| MCP through Otari (inline `mcp_servers` → Receipt's MCP server) | `receipt/mcp_server.py`, `receipt audit` | ✅ live | `evidence/p6_otari_mcp.json` |
+| Usage ledger as an independent check | `receipt/witness.py` | ✅ live, all calls in A, B and auditor match | `evidence/p2_ledger_witness.json` |
+| Otari refusals captured as signed events (403/429 + `Otari-Error-Code`) | `receipt/client.py` | ✅ live | `evidence/p3_enforcement.json`, `evidence/p6_fallback_and_budget.json` |
+| Guardrails (`guardrail_violation` → violation) | `receipt/mandate.py` | ❌ every guardrail needs a third-party vendor key; tested with fixtures only | `tests/test_mandate.py` |
 | Signed receipt, verifier, tamper detection, viewer | `receipt/` | ✅ on live receipts | `examples/` |
-
-Once web search, a routing policy, an end-user budget and a guardrail are enabled in the dashboard, `uv run receipt demo` records each of them with no code changes. `uv run receipt audit --mcp-url <public>/mcp` then has an Otari-hosted model check both receipts through Otari MCP.
 
 ## What's in a receipt
 
@@ -134,9 +139,10 @@ Prompts and outputs are committed as sha256 hashes (`messages_sha256`, `content_
 
 - The signing key is a local file. Anyone with the key can sign, which is why `--witness` exists. A hardware or KMS-backed key is the obvious next step.
 - The ledger check only works for receipts from the Otari account whose key you hold. A third party needs the owner to run it, or Otari to sign receipts itself (see FEEDBACK.md).
-- The demo's web search, routing fallback, end-user budget and guardrail were not live-verified (see the rubric map). Cost totals rely on Otari's `usage.cost_usd`. Calls Otari doesn't price count as $0.
+- Guardrails were not live-verified: Otari's guardrails all need a third-party vendor key. Cost totals rely on Otari's `usage.cost_usd` (code execution cost is read from the ledger). Calls Otari doesn't price count as $0.
 - Non-streaming only, because hosted Otari may not fall back on streamed requests that declare gateway tools (otari#2727).
-- Run A's brief was written with web search disabled, and the model's claims are its own. Citation provenance stops it from citing URLs it never fetched, but it can't fact-check the prose.
+- Citation provenance proves each cited URL came from an Otari search in the same session. It can't prove that the page says what the brief claims.
+- Run B's summary was re-derived and re-signed once after a verifier fix, so Otari's refusal of the sandbox call counts as a violation. Its event chain and root hash are unchanged (`be4c4d97…`).
 
 ## Hackathon links
 
