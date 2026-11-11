@@ -147,8 +147,8 @@ Prompts and outputs are committed as sha256 hashes (`messages_sha256`, `content_
 ## Hackathon links
 
 - Branch: [`devs-wilding`](https://github.com/Sakibimam/receipt/tree/devs-wilding)
-- Baseline before Otari: [`961317a`](https://github.com/Sakibimam/receipt/commit/961317a)
-- First Otari commit: [`80f9a05`](https://github.com/Sakibimam/receipt/commit/80f9a055453a673296389f4ca124516031d5d0ff)
+- Baseline before Otari: [`33a00dc`](https://github.com/Sakibimam/receipt/commit/33a00dc)
+- First Otari commit: [`9e6bd55`](https://github.com/Sakibimam/receipt/commit/9e6bd554b8fa6d1b074173c505ab6aaf73e899df)
 - Feedback on Otari: [FEEDBACK.md](FEEDBACK.md)
 
 ## Development
