@@ -1,0 +1,140 @@
+{
+  "version": "receipt/1.0",
+  "session_id": "ses_ad41b998260b4242",
+  "agent": "auditor-agent",
+  "gateway": "otari",
+  "started_at": "2026-11-11T19:07:52.792Z",
+  "ended_at": "2026-11-11T19:08:05.088Z",
+  "mandate": {
+    "name": "unrestricted",
+    "allowed_models": [
+      "openai/gpt-oss-120b"
+    ],
+    "allowed_tools": [
+      "mcp:receipt",
+      "otari_code_execution"
+    ],
+    "blocked_tools": [],
+    "budget_usd": 0.0,
+    "max_requests": 0,
+    "end_user": null,
+    "end_user_budget": null,
+    "enforce": true,
+    "require_sourced_citations": false
+  },
+  "mandate_hash": "32f419f1802da0fc6d55d86b31f96dc448b6b7d4bbc7b594c3194e500db08099",
+  "events_root_hash": "4d86475082140a1c94cd066eddc59f3a7fd887612b39f51b3e9c3e28193d6f19",
+  "event_count": 1,
+  "totals": {
+    "requests": 1,
+    "cost_usd": 0.000121,
+    "total_tokens": 2665,
+    "by_model": {
+      "openai/gpt-oss-120b": {
+        "requests": 1,
+        "errors": 0,
+        "prompt_tokens": 2497,
+        "completion_tokens": 168,
+        "total_tokens": 2665,
+        "cost_usd": 0.000121
+      }
+    }
+  },
+  "tool_calls": [
+    {
+      "event_index": 0,
+      "id": "otari_mcp_39a51f176e2a4e4ab89122c935fb7649",
+      "type": "mcp",
+      "status": "completed",
+      "query": null,
+      "url": null,
+      "exit_code": null,
+      "sources": []
+    },
+    {
+      "event_index": 0,
+      "id": "otari_mcp_11872b8524384f3da388ccac7a39bc98",
+      "type": "mcp",
+      "status": "completed",
+      "query": null,
+      "url": null,
+      "exit_code": null,
+      "sources": []
+    }
+  ],
+  "fallbacks": [],
+  "violations": [],
+  "verdict": "VERIFIED",
+  "events": [
+    {
+      "data": {
+        "content_preview": "Accept Agent A – receipt PASS, stayed within its $0.06 budget.  \nReject Agent B – receipt FAIL due to multiple mandate violations (blocked model, blocked tool, request limit exceeded, and budget exceeded).  \nReason: the receipt lists the specific violations causing the FAIL verdict.",
+        "content_sha256": "4737e3a707badf29235a6b5db0b87a33029ea62b58213e319db3312baf7189fe",
+        "gateway": "otari",
+        "headers": {
+          "Otari-Attempt-Count": "1",
+          "Otari-Fallback": "false",
+          "Otari-Model": "openai/gpt-oss-120b",
+          "Otari-Provider": "deepinfra",
+          "Otari-Request-ID": "0d006b44-fd18-463d-bcd3-a18ab2c590d6",
+          "Otari-Response-Duration-Ms": "11235"
+        },
+        "mock": false,
+        "request": {
+          "end_user_budget": null,
+          "mcp_servers": [
+            {
+              "allowed_tools": [
+                "receipt_check"
+              ],
+              "name": "receipt",
+              "url": "https://clara-brain-albuquerque-federation.trycloudflare.com/mcp"
+            }
+          ],
+          "messages": 1,
+          "messages_sha256": "a9118509c80d00bfb105cd9df4846876cf13411c13bdba6ed7b3747d295aad96",
+          "metadata": null,
+          "model": "openai/gpt-oss-120b",
+          "role": "auditor",
+          "tools": [
+            "mcp:receipt"
+          ],
+          "user": null
+        },
+        "response_model": "openai/gpt-oss-120b",
+        "status": 200,
+        "tool_calls": [
+          {
+            "id": "otari_mcp_39a51f176e2a4e4ab89122c935fb7649",
+            "name": "receipt_check",
+            "output": "{\n  \"verdict\": \"PASS\",\n  \"claimed_verdict\": \"VERIFIED\",\n  \"summary\": \"Agent 'research-agent' session ses_92d33fe6ab344751 via otari.\\n3 requests across 3 model(s), $0.041197 of a $0.06 budget.\\n14 web source(s), 0 fallback(s).\\nVerifier verdict: PASS.\",\n  \"models\": {\n    \"receipt-research\": 1,\n    \"alibaba/qwen3-235b-a22b-instruct-2507\": 1,\n    \"otari_code_execution\": 1\n  },\n  \"cost_usd\": 0.041197,\n  \"sources\": [\n    \"https://arxiv.org/html/2406.11931v1\",\n    \"https://arxiv.org/html/2409.12186v3\",\n    \"https://ca.investing.com/news/company-news/openai-releases-openweight-ai-models-to-compete-with-deepseek-4137420\",\n    \"https://deepgram.com/blog/best-local-coding-llm\",\n    \"https://deepseekcoder.github.io\",\n    \"https://finance.yahoo.com/news/alibaba-unveils-version-qwen-2-154004804.html\",\n    \"https://finance.yahoo.com/news/alibabas-ai-model-rivals-openais-093000571.html\",\n    \"https://finance.yahoo.com/news/alibabas-ai-model-rivals-openais-093000571.html?guccounter=1\",\n    \"https://localaimaster.com/models/codellama-34b\",\n    \"https://openlaboratory.ai/models/CodeLlama-34B\",\n    \"https://patmcguinness.substack.com/p/ai-keeps-eating-the-software-world\",\n    \"https://tracxn.com/d/companies/codellama/__HkhQRoLD_AZAuZC6UZrJYsx59YkBQambsf_doe5FMyg\",\n    \"https://www.generalcompute.com/blog/coding-model-benchmarks-qwen-2-5-coder-vs-deepseek-coder-v2-vs-codellama-vs-starcoder-2\",\n    \"https://www.reddit.com/r/LocalLLaMA/comments/1gsyp7q/humaneval_benchmark_of_exl2_quants_of_popular\"\n  ],\n  \"violations\": [],\n  \"failing_events\": [],\n  \"session_id\": \"ses_92d33fe6ab344751\"\n}",
+            "status": "completed",
+            "type": "mcp"
+          },
+          {
+            "id": "otari_mcp_11872b8524384f3da388ccac7a39bc98",
+            "name": "receipt_check",
+            "output": "{\n  \"verdict\": \"FAIL\",\n  \"claimed_verdict\": \"FAILED\",\n  \"summary\": \"Agent 'research-agent (rogue)' session ses_b563b19bb97a4dd6 via otari.\\n13 requests across 3 model(s), $0.003142 of a $0.06 budget.\\n0 web source(s), 1 fallback(s).\\n4 mandate violation(s):\\n- event 1: allowed_models (blocked before sending: model anthropic/claude-fable-5 not allowed)\\n- event 2: allowed_tools (blocked before sending: tool otari_web_fetch not allowed)\\n- event 14: max_requests (blocked before sending: limit 12 reached)\\n- event 15: budget_exceeded (Otari refused code execution: HTTP 403 budget_exceeded)\\nVerifier verdict: FAIL.\",\n  \"models\": {\n    \"receipt-research\": 11,\n    \"alibaba/qwen3-235b-a22b-instruct-2507\": 1,\n    \"otari_code_execution\": 1\n  },\n  \"cost_usd\": 0.003142,\n  \"sources\": [],\n  \"violations\": [\n    {\n      \"event_index\": 1,\n      \"rule\": \"allowed_models\",\n      \"detail\": \"blocked before sending: model anthropic/claude-fable-5 not allowed\"\n    },\n    {\n      \"event_index\": 2,\n      \"rule\": \"allowed_tools\",\n      \"detail\": \"blocked before sending: tool otari_web_fetch not allowed\"\n    },\n    {\n      \"event_index\": 14,\n      \"rule\": \"max_requests\",\n      \"detail\": \"blocked before sending: limit 12 reached\"\n    },\n    {\n      \"event_index\": 15,\n      \"rule\": \"budget_exceeded\",\n      \"detail\": \"Otari refused code execution: HTTP 403 budget_exceeded\"\n    }\n  ],\n  \"failing_events\": [\n    1,\n    2,\n    14,\n    15\n  ],\n  \"session_id\": \"ses_b563b19bb97a4dd6\"\n}",
+            "status": "completed",
+            "type": "mcp"
+          }
+        ],
+        "usage": {
+          "completion_tokens": 168,
+          "cost_usd": 0.000121,
+          "cost_usd_raw": "0.000121",
+          "pricing_source": "deployment",
+          "prompt_tokens": 2497,
+          "total_tokens": 2665
+        }
+      },
+      "index": 0,
+      "ts": "2026-11-11T19:08:05.085Z",
+      "type": "llm_call",
+      "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "hash": "4d86475082140a1c94cd066eddc59f3a7fd887612b39f51b3e9c3e28193d6f19"
+    }
+  ],
+  "signer_public_key": "99da0b4e5614b460014de9adf1d941d1fc185e0702276b0f1a20e588dd3542dd",
+  "signature": "Yi9B+ZIvSv5LqqnXmuOIvLHZEpi0R9Eff2/hcDAptmDVgS8b1Sedfxgjm/BK7QzisvL4YKc/ZZPaFoXWSRVkCQ=="
+}

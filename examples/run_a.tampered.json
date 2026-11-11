@@ -1,10 +1,10 @@
 {
   "version": "receipt/1.0",
-  "session_id": "ses_0e932c3d1e874bff",
+  "session_id": "ses_92d33fe6ab344751",
   "agent": "research-agent",
   "gateway": "otari",
-  "started_at": "2026-11-11T17:47:58.350Z",
-  "ended_at": "2026-11-11T17:49:14.725Z",
+  "started_at": "2026-11-11T18:47:17.430Z",
+  "ended_at": "2026-11-11T18:48:37.611Z",
   "mandate": {
     "name": "research-brief-v1",
     "allowed_models": [
@@ -19,43 +19,154 @@
     "blocked_tools": [
       "otari_web_fetch"
     ],
-    "budget_usd": 0.004,
-    "max_requests": 8,
+    "budget_usd": 0.06,
+    "max_requests": 12,
     "end_user": "demo-analyst",
     "end_user_budget": "receipt-demo",
     "enforce": true,
     "require_sourced_citations": true
   },
-  "mandate_hash": "f889f099d5e424b99ed57670f6193a4f51baca7f67de386d2d56d8e5a67f1f6e",
-  "events_root_hash": "1094d8d93911455ba172bf63a9890183bab5adec7354f2189bc45e252b050145",
-  "event_count": 4,
+  "mandate_hash": "897e43b24fb2e9a2402a816ccb5f600ddc993f3ea165664225e9146fe3960bd9",
+  "events_root_hash": "0777553ccba8db5260c921dbeddb4e2eecd501ec3ea845f123a4f1ba47f92104",
+  "event_count": 3,
   "totals": {
     "requests": 3,
-    "cost_usd": 0.000459,
-    "total_tokens": 2400,
+    "cost_usd": 0.041197,
+    "total_tokens": 25060,
     "by_model": {
-      "openai/gpt-oss-120b": {
-        "requests": 2,
-        "errors": 1,
-        "prompt_tokens": 101,
-        "completion_tokens": 1461,
-        "total_tokens": 1562,
-        "cost_usd": 0.000252
+      "receipt-research": {
+        "requests": 1,
+        "errors": 0,
+        "prompt_tokens": 23407,
+        "completion_tokens": 915,
+        "total_tokens": 24322,
+        "cost_usd": 0.031022
       },
       "alibaba/qwen3-235b-a22b-instruct-2507": {
         "requests": 1,
         "errors": 0,
-        "prompt_tokens": 552,
-        "completion_tokens": 286,
-        "total_tokens": 838,
-        "cost_usd": 0.000207
+        "prompt_tokens": 501,
+        "completion_tokens": 237,
+        "total_tokens": 738,
+        "cost_usd": 0.000175
+      },
+      "otari_code_execution": {
+        "requests": 1,
+        "errors": 0,
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "cost_usd": 0.01
       }
     }
   },
   "tool_calls": [
     {
-      "event_index": 3,
-      "id": "ad77f716-2de5-48db-931d-cd4142988845",
+      "event_index": 0,
+      "id": "otari_ws_790ed2bde03b413c838f22fa2e713de4",
+      "type": "web_search",
+      "status": "completed",
+      "query": "open weight coding models 2024 CodeLlama StarCoder DeepSeek-Coder recent benchmarks",
+      "url": null,
+      "exit_code": null,
+      "sources": [
+        {
+          "title": "DeepSeek-Coder-V2: Breaking the Barrier of Closed-Source Models in Code Intelligence",
+          "url": "https://arxiv.org/html/2406.11931v1"
+        },
+        {
+          "title": "DeepSeek Coder",
+          "url": "https://deepseekcoder.github.io"
+        },
+        {
+          "title": "General Compute — Coding Model Benchmarks: Qwen 2.5 Coder vs DeepSeek Coder V2 vs CodeLlama vs StarCoder 2",
+          "url": "https://www.generalcompute.com/blog/coding-model-benchmarks-qwen-2-5-coder-vs-deepseek-coder-v2-vs-codellama-vs-starcoder-2"
+        },
+        {
+          "title": "OpenAI releases open-weight AI models to compete with DeepSeek",
+          "url": "https://ca.investing.com/news/company-news/openai-releases-openweight-ai-models-to-compete-with-deepseek-4137420"
+        },
+        {
+          "title": "AI Keeps Eating the Software World - by Patrick McGuinness",
+          "url": "https://patmcguinness.substack.com/p/ai-keeps-eating-the-software-world"
+        }
+      ]
+    },
+    {
+      "event_index": 0,
+      "id": "otari_ws_ddb9013893bc47eeb69349521738a048",
+      "type": "web_search",
+      "status": "completed",
+      "query": "CodeLlama 34B open source coding model benchmark HumanEval 2024",
+      "url": null,
+      "exit_code": null,
+      "sources": [
+        {
+          "title": "CodeLlama 34B: 48.8% HumanEval, 20GB VRAM (Q4), Ollama",
+          "url": "https://localaimaster.com/models/codellama-34b"
+        },
+        {
+          "title": "CodeLlama 34B | Open Laboratory",
+          "url": "https://openlaboratory.ai/models/CodeLlama-34B"
+        },
+        {
+          "title": "Alibaba's new AI model rivals OpenAI's GPT-4o in coding ability amid open source competition",
+          "url": "https://finance.yahoo.com/news/alibabas-ai-model-rivals-openais-093000571.html?guccounter=1"
+        },
+        {
+          "title": "Alibaba's new AI model rivals OpenAI's GPT-4o in coding ability amid open source competition",
+          "url": "https://finance.yahoo.com/news/alibabas-ai-model-rivals-openais-093000571.html"
+        },
+        {
+          "title": "Codellama - 2026 Company Profile, Team & Competitors - Tracxn",
+          "url": "https://tracxn.com/d/companies/codellama/__HkhQRoLD_AZAuZC6UZrJYsx59YkBQambsf_doe5FMyg"
+        }
+      ]
+    },
+    {
+      "event_index": 0,
+      "id": "otari_ws_199bf01c933049e0a39a18d5239bcd1c",
+      "type": "web_search",
+      "status": "completed",
+      "query": "General Compute coding model benchmarks Qwen 2.5 Coder DeepSeek Coder V2 CodeLlama HumanEval 2024",
+      "url": null,
+      "exit_code": null,
+      "sources": [
+        {
+          "title": "General Compute — Coding Model Benchmarks: Qwen 2.5 Coder vs DeepSeek Coder V2 vs CodeLlama vs StarCoder 2",
+          "url": "https://www.generalcompute.com/blog/coding-model-benchmarks-qwen-2-5-coder-vs-deepseek-coder-v2-vs-codellama-vs-starcoder-2"
+        },
+        {
+          "title": "Qwen2.5-Coder Technical Report",
+          "url": "https://arxiv.org/html/2409.12186v3"
+        },
+        {
+          "title": "Codestral 22B, Owen 2.5 Coder B, and DeepSeek V2: Which AI Coder should you choose? | Deepgram",
+          "url": "https://deepgram.com/blog/best-local-coding-llm"
+        },
+        {
+          "title": "Alibaba unveils new version of Qwen 2.5 AI model",
+          "url": "https://finance.yahoo.com/news/alibaba-unveils-version-qwen-2-154004804.html"
+        },
+        {
+          "title": "HumanEval benchmark of EXL2 quants of popular local LLMs (2.5 through 8.0 bpw covered) : r/LocalLLaMA",
+          "url": "https://www.reddit.com/r/LocalLLaMA/comments/1gsyp7q/humaneval_benchmark_of_exl2_quants_of_popular"
+        }
+      ]
+    },
+    {
+      "event_index": 0,
+      "id": "otari_ws_f3b1ad3bfc134e09aff78932a0323da9",
+      "type": "web_search",
+      "status": "failed",
+      "query": "DeepSeek-Coder-V2 benchmark GPT-4 Turbo HumanEval",
+      "url": null,
+      "exit_code": null,
+      "sources": []
+    },
+    {
+      "event_index": 2,
+      "id": "5cd56c90-eaad-4568-b8e7-24ffb88c8a8b",
       "type": "code_execution",
       "status": "completed",
       "query": null,
@@ -72,103 +183,160 @@
       "data": {
         "content_preview": "",
         "content_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        "error": {
-          "code": "web_access_disabled",
-          "detail": "web search is not enabled for this workspace"
-        },
-        "gateway": "otari",
-        "headers": {
-          "Otari-Error-Code": "web_access_disabled",
-          "Otari-Request-ID": "16d976bb-d6b0-419a-84ca-a20443e9efc7"
-        },
-        "mock": false,
-        "request": {
-          "end_user_budget": "receipt-demo",
-          "messages": 2,
-          "messages_sha256": "f102392ee24f4eb3e80f306078102dbc611a6504c3a789a7c36978f8f70695d9",
-          "metadata": {
-            "end_user": "demo-analyst"
-          },
-          "model": "openai/gpt-oss-120b",
-          "role": "researcher",
-          "tools": [
-            "otari_web_search"
-          ],
-          "user": null
-        },
-        "response_model": "openai/gpt-oss-120b",
-        "status": 403,
-        "tool_calls": [],
-        "usage": {}
-      },
-      "index": 0,
-      "ts": "2026-11-11T17:47:59.516Z",
-      "type": "llm_error",
-      "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
-      "hash": "239024f3092ba0a2ec6b21035e2f49f303ffc674a3beff8c3493a7566570738d"
-    },
-    {
-      "data": {
-        "content_preview": "**Current State of Open‑Weight Coding Models (≈150 words)**  \n\n1. **Scale and performance** – Meta’s **Code Llama 2** (up to 70 B parameters) is the largest open‑weight code model and reaches ≈ 70 % of GPT‑4‑Turbo on HumanEval while remaining fully downloadable. 【https://ai.meta.com/blog/code-llama-2/】  \n2. **Multi‑language coverage** – The **StarCoder** family (15 B) trained on the 2 TB “The Stack” dataset supports > 50 programming languages and consistently outperforms earlier open models on MBPP and HumanEval‑Plus. 【https://bigcode-project.github.io/starcoder/】  \n3. **Rapid community iteration** – **DeepSeek‑Coder** (1.3 B & 6.7 B) was released in March 2024 with instruction‑tuned checkpoints; early benchmarks show it surpasses CodeLlama‑7B on CodeAlpaca and LeetCode‑style tasks. 【https://deepseek.com/blog/deepseek-coder】  \n4. **Specialized instruction tuning** – **Mistral AI’s CodeMistral‑7B** adds a dedicated code‑instruction dataset (CodeAlpaca + The Stack) and achieves top‑5 scores on the Open‑LLM Leaderboard for code generation. 【https://mistral.ai/news/codemistral/】  \n5. **Efficient deployment** – Quantized (4‑bit) and LoRA‑adapted versions of these models now run on a single RTX 4090, enabling affordable local development environments; Hugging Face’s “Open‑LLM Leaderboard” tracks these efficiency gains. 【https://huggingface.co/spaces/open-llm-leaderboard】  \n\nOverall, open‑weight code LLMs have closed much of the gap with proprietary systems, offering competitive accuracy, broad language support, and consumer‑grade runtimes.",
-        "content_sha256": "2517f43aa61df598212d5a1eff71f36e004d4cb24efde3002204e17641c73735",
         "gateway": "otari",
         "headers": {
           "Otari-Attempt-Count": "1",
           "Otari-Fallback": "false",
           "Otari-Model": "openai/gpt-oss-120b",
           "Otari-Provider": "deepinfra",
-          "Otari-Request-ID": "391ddc55-ec8d-480b-8491-c3f0487dff59",
-          "Otari-Response-Duration-Ms": "39476"
+          "Otari-Request-ID": "d53927b7-d9f6-4345-a442-cf19b0d22e1b",
+          "Otari-Response-Duration-Ms": "65812"
         },
         "mock": false,
         "request": {
           "end_user_budget": "receipt-demo",
+          "mcp_servers": [],
           "messages": 2,
           "messages_sha256": "f102392ee24f4eb3e80f306078102dbc611a6504c3a789a7c36978f8f70695d9",
           "metadata": {
             "end_user": "demo-analyst"
           },
-          "model": "openai/gpt-oss-120b",
+          "model": "receipt-research",
           "role": "researcher",
-          "tools": [],
+          "tools": [
+            "otari_web_search"
+          ],
           "user": null
         },
-        "response_model": "openai/gpt-oss-120b",
+        "response_model": "receipt-research",
         "status": 200,
-        "tool_calls": [],
+        "tool_calls": [
+          {
+            "id": "otari_ws_790ed2bde03b413c838f22fa2e713de4",
+            "query": "open weight coding models 2024 CodeLlama StarCoder DeepSeek-Coder recent benchmarks",
+            "sources": [
+              {
+                "title": "DeepSeek-Coder-V2: Breaking the Barrier of Closed-Source Models in Code Intelligence",
+                "url": "https://arxiv.org/html/2406.11931v1"
+              },
+              {
+                "title": "DeepSeek Coder",
+                "url": "https://deepseekcoder.github.io"
+              },
+              {
+                "title": "General Compute — Coding Model Benchmarks: Qwen 2.5 Coder vs DeepSeek Coder V2 vs CodeLlama vs StarCoder 2",
+                "url": "https://www.generalcompute.com/blog/coding-model-benchmarks-qwen-2-5-coder-vs-deepseek-coder-v2-vs-codellama-vs-starcoder-2"
+              },
+              {
+                "title": "OpenAI releases open-weight AI models to compete with DeepSeek",
+                "url": "https://ca.investing.com/news/company-news/openai-releases-openweight-ai-models-to-compete-with-deepseek-4137420"
+              },
+              {
+                "title": "AI Keeps Eating the Software World - by Patrick McGuinness",
+                "url": "https://patmcguinness.substack.com/p/ai-keeps-eating-the-software-world"
+              }
+            ],
+            "status": "completed",
+            "type": "web_search"
+          },
+          {
+            "id": "otari_ws_ddb9013893bc47eeb69349521738a048",
+            "query": "CodeLlama 34B open source coding model benchmark HumanEval 2024",
+            "sources": [
+              {
+                "title": "CodeLlama 34B: 48.8% HumanEval, 20GB VRAM (Q4), Ollama",
+                "url": "https://localaimaster.com/models/codellama-34b"
+              },
+              {
+                "title": "CodeLlama 34B | Open Laboratory",
+                "url": "https://openlaboratory.ai/models/CodeLlama-34B"
+              },
+              {
+                "title": "Alibaba's new AI model rivals OpenAI's GPT-4o in coding ability amid open source competition",
+                "url": "https://finance.yahoo.com/news/alibabas-ai-model-rivals-openais-093000571.html?guccounter=1"
+              },
+              {
+                "title": "Alibaba's new AI model rivals OpenAI's GPT-4o in coding ability amid open source competition",
+                "url": "https://finance.yahoo.com/news/alibabas-ai-model-rivals-openais-093000571.html"
+              },
+              {
+                "title": "Codellama - 2026 Company Profile, Team & Competitors - Tracxn",
+                "url": "https://tracxn.com/d/companies/codellama/__HkhQRoLD_AZAuZC6UZrJYsx59YkBQambsf_doe5FMyg"
+              }
+            ],
+            "status": "completed",
+            "type": "web_search"
+          },
+          {
+            "id": "otari_ws_199bf01c933049e0a39a18d5239bcd1c",
+            "query": "General Compute coding model benchmarks Qwen 2.5 Coder DeepSeek Coder V2 CodeLlama HumanEval 2024",
+            "sources": [
+              {
+                "title": "General Compute — Coding Model Benchmarks: Qwen 2.5 Coder vs DeepSeek Coder V2 vs CodeLlama vs StarCoder 2",
+                "url": "https://www.generalcompute.com/blog/coding-model-benchmarks-qwen-2-5-coder-vs-deepseek-coder-v2-vs-codellama-vs-starcoder-2"
+              },
+              {
+                "title": "Qwen2.5-Coder Technical Report",
+                "url": "https://arxiv.org/html/2409.12186v3"
+              },
+              {
+                "title": "Codestral 22B, Owen 2.5 Coder B, and DeepSeek V2: Which AI Coder should you choose? | Deepgram",
+                "url": "https://deepgram.com/blog/best-local-coding-llm"
+              },
+              {
+                "title": "Alibaba unveils new version of Qwen 2.5 AI model",
+                "url": "https://finance.yahoo.com/news/alibaba-unveils-version-qwen-2-154004804.html"
+              },
+              {
+                "title": "HumanEval benchmark of EXL2 quants of popular local LLMs (2.5 through 8.0 bpw covered) : r/LocalLLaMA",
+                "url": "https://www.reddit.com/r/LocalLLaMA/comments/1gsyp7q/humaneval_benchmark_of_exl2_quants_of_popular"
+              }
+            ],
+            "status": "completed",
+            "type": "web_search"
+          },
+          {
+            "error": "{'provider': None, 'status': None, 'tag': 'call_limit', 'retryable': False}",
+            "id": "otari_ws_f3b1ad3bfc134e09aff78932a0323da9",
+            "query": "DeepSeek-Coder-V2 benchmark GPT-4 Turbo HumanEval",
+            "status": "failed",
+            "type": "web_search"
+          }
+        ],
         "usage": {
-          "completion_tokens": 1461,
+          "completion_tokens": 915,
           "cost_usd": 0.0,
-          "cost_usd_raw": "0.000252",
+          "cost_usd_raw": "0.031022",
           "pricing_source": "deployment",
-          "prompt_tokens": 101,
-          "total_tokens": 1562
+          "prompt_tokens": 23407,
+          "total_tokens": 24322
         }
       },
-      "index": 1,
-      "ts": "2026-11-11T17:48:39.346Z",
+      "index": 0,
+      "ts": "2026-11-11T18:48:24.403Z",
       "type": "llm_call",
-      "prev_hash": "239024f3092ba0a2ec6b21035e2f49f303ffc674a3beff8c3493a7566570738d",
-      "hash": "b616a18d9095bbe8fb3c7ff71223a00dde4767eeb510f8abdb835991382ae64a"
+      "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "hash": "faf9c98af59cf60751758073f2f1e31a3a8d4acf9f5bd394f8a9c52aa058df08"
     },
     {
       "data": {
-        "content_preview": "**Current State of Open-Weight Coding Models (≈150 words)**  \n\nOpen-weight coding models have advanced rapidly in 2024, achieving performance close to proprietary systems. Meta’s **Code Llama 2**, available up to 70B parameters, leads in scale and achieves around 70% of GPT-4-Turbo’s score on HumanEval, with full model weights accessible. The **StarCoder** series, trained on 2TB of code from The Stack, supports over 50 languages and outperforms earlier open models on MBPP and HumanEval-Plus. **DeepSeek-Coder**, released in March 2024 with 1.3B and 6.7B variants, features instruction tuning and exceeds CodeLlama-7B on programming benchmarks like CodeAlpaca. **CodeMistral-7B** from Mistral AI leverages a curated mix of CodeAlpaca and The Stack, ranking among the top open models on code-specific evaluations. Efficiency improvements now allow quantized and LoRA-finetuned versions to run on consumer GPUs like the RTX 4090, enabling local deployment. Hugging Face’s Open-LLM Leaderboard tracks these developments, reflecting strong community-driven progress in accuracy, language coverage, and accessibility.  \n\nSources: none (live web search unavailable for this run).",
-        "content_sha256": "f0b53f9b83e034e60637771b80e13fe997be24c48857672e493948ea5c7c5a5f",
+        "content_preview": "Open-weight coding models are advancing rapidly, with notable releases including DeepSeek-Coder V2 [2], Qwen-2.5-Coder [8], and CodeLlama-34B [6]. These models enable transparent, auditable AI development and are optimized for code generation and repair tasks. DeepSeek-Coder V2 excels in multilingual coding benchmarks, while Qwen-2.5-Coder demonstrates strong performance across HumanEval and MBPP tests [3]. CodeLlama-34B remains popular for local deployment due to permissive licensing and robust Python support [7]. Benchmark comparisons show Qwen-2.5-Coder outperforming CodeLlama and StarCoder2 in several coding tasks [3]. Open-weight models now rival proprietary systems, driven by demand for customization and privacy in software development [5]. Recent advancements include improved context lengths and quantized versions for efficient local inference [14]. While OpenAI has released open-weight models to compete in this space [4], leadership remains fragmented among open-source contributors and tech firms like Alibaba [13]. The trend reflects broader adoption of AI in software engineering workflows [12].",
+        "content_sha256": "4e437393dbbeca2b6bd6eb2795f034338ad46875d0f8665c8d2041b9fec7fb6c",
         "gateway": "otari",
         "headers": {
           "Otari-Attempt-Count": "1",
           "Otari-Fallback": "false",
           "Otari-Model": "Qwen/Qwen3-235B-A22B-Instruct-2507",
           "Otari-Provider": "deepinfra",
-          "Otari-Request-ID": "5989b8a1-28bb-47c8-8712-a44f7f3db794",
-          "Otari-Response-Duration-Ms": "31567"
+          "Otari-Request-ID": "c6963e5a-d4b4-46a8-a360-d93aeff87769",
+          "Otari-Response-Duration-Ms": "8957"
         },
         "mock": false,
         "request": {
           "end_user_budget": "receipt-demo",
+          "mcp_servers": [],
           "messages": 2,
-          "messages_sha256": "e89047398eed7d371db9513cd90a30103081d61fb65524a99306e2f65e72d825",
+          "messages_sha256": "cba1a7e04e13029a6090d09c596bee05109af347041619a647eaa9331ef790a5",
           "metadata": {
             "end_user": "demo-analyst"
           },
@@ -181,30 +349,30 @@
         "status": 200,
         "tool_calls": [],
         "usage": {
-          "completion_tokens": 286,
-          "cost_usd": 0.000207,
-          "cost_usd_raw": "0.000207",
+          "completion_tokens": 237,
+          "cost_usd": 0.000175,
+          "cost_usd_raw": "0.000175",
           "pricing_source": "deployment",
-          "prompt_tokens": 552,
-          "total_tokens": 838
+          "prompt_tokens": 501,
+          "total_tokens": 738
         }
       },
-      "index": 2,
-      "ts": "2026-11-11T17:49:11.322Z",
+      "index": 1,
+      "ts": "2026-11-11T18:48:33.690Z",
       "type": "llm_call",
-      "prev_hash": "b616a18d9095bbe8fb3c7ff71223a00dde4767eeb510f8abdb835991382ae64a",
-      "hash": "2680b4741d38762b61547bb1a5a0a97c7376917de98dc7f1c187ea99c4f912b4"
+      "prev_hash": "faf9c98af59cf60751758073f2f1e31a3a8d4acf9f5bd394f8a9c52aa058df08",
+      "hash": "d4f9287b4d2c41d9b1d1364544dd20a1a9c90519ca41fc837e394e49f5548180"
     },
     {
       "data": {
         "gateway": "otari",
         "headers": {
-          "Otari-Container-Id": "otari_cntr_610b524aecf84999bcce115dcfb045a0",
-          "Otari-Request-ID": "ad77f716-2de5-48db-931d-cd4142988845"
+          "Otari-Container-Id": "otari_cntr_04e75c07af644c96ad1f1b49cdc59529",
+          "Otari-Request-ID": "5cd56c90-eaad-4568-b8e7-24ffb88c8a8b"
         },
         "mock": false,
         "request": {
-          "code_sha256": "1f8e4e386a1878acf097c92b2ad0f5fe62928086b5ef83cb4e50098c6bab908d",
+          "code_sha256": "8c77eb1deecdd9c82b167b1966d06ea75aca1ea67c63c7dd780398da7ca22022",
           "label": "sandbox_verify",
           "tool": "otari_code_execution",
           "tools": [
@@ -213,21 +381,29 @@
         },
         "status": 200,
         "stderr": "",
-        "stdout": "{\"bad_events\": [], \"budget_usd\": 0.004, \"chain_ok\": true, \"cost_usd\": 0.000459, \"events_checked\": 3, \"head\": \"2680b4741d38762b61547bb1a5a0a97c7376917de98dc7f1c187ea99c4f912b4\", \"requests\": 3, \"verifier\": \"receipt-sandbox/1\", \"within_budget\": true}\n",
+        "stdout": "{\"bad_events\": [], \"budget_usd\": 0.06, \"chain_ok\": true, \"cost_usd\": 0.031197, \"events_checked\": 2, \"head\": \"d4f9287b4d2c41d9b1d1364544dd20a1a9c90519ca41fc837e394e49f5548180\", \"requests\": 2, \"verifier\": \"receipt-sandbox/1\", \"within_budget\": true}\n",
         "tool_call": {
           "exit_code": 0,
-          "id": "ad77f716-2de5-48db-931d-cd4142988845",
+          "id": "5cd56c90-eaad-4568-b8e7-24ffb88c8a8b",
           "status": "completed",
           "type": "code_execution"
+        },
+        "usage": {
+          "completion_tokens": 0,
+          "cost_usd": 0.01,
+          "cost_usd_raw": "0.010000",
+          "pricing_source": "otari_ledger",
+          "prompt_tokens": 0,
+          "total_tokens": 0
         }
       },
-      "index": 3,
-      "ts": "2026-11-11T17:49:14.721Z",
+      "index": 2,
+      "ts": "2026-11-11T18:48:37.603Z",
       "type": "sandbox_exec",
-      "prev_hash": "2680b4741d38762b61547bb1a5a0a97c7376917de98dc7f1c187ea99c4f912b4",
-      "hash": "1094d8d93911455ba172bf63a9890183bab5adec7354f2189bc45e252b050145"
+      "prev_hash": "d4f9287b4d2c41d9b1d1364544dd20a1a9c90519ca41fc837e394e49f5548180",
+      "hash": "0777553ccba8db5260c921dbeddb4e2eecd501ec3ea845f123a4f1ba47f92104"
     }
   ],
   "signer_public_key": "99da0b4e5614b460014de9adf1d941d1fc185e0702276b0f1a20e588dd3542dd",
-  "signature": "fAbstZD0dq5t1x7yy5dQYjkUtJEoXblvF+mW8UceeWtoqSWFjgGmj0e7ukXtxCpBjDtVITUeSMEGY0ZACYGRDA=="
+  "signature": "xDCygX7ewuqYpTPevp+3Ovsrtl9MX7RUoCYJdydHx0+bFokFbSDH64tGKaAqLOwhaxEsRia1g8CgNFxzfhOvBw=="
 }

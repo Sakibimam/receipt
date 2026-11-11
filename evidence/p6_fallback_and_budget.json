@@ -1,0 +1,113 @@
+{
+  "captured_at": "2026-11-11T19:08:29.846033+00:00",
+  "live": true,
+  "session_id": "ses_b563b19bb97a4dd6",
+  "fallback": {
+    "event_index": 13,
+    "request_model": "receipt-research",
+    "status": 200,
+    "headers": {
+      "Otari-Attempt-Count": "2",
+      "Otari-Fallback": "true",
+      "Otari-Model": "Qwen/Qwen3-235B-A22B-Instruct-2507",
+      "Otari-Provider": "deepinfra",
+      "Otari-Request-ID": "a7ceba89-3403-42be-a431-293e8ce37519",
+      "Otari-Response-Duration-Ms": "3675"
+    }
+  },
+  "rate_limited_without_fallback": [
+    {
+      "event_index": 9,
+      "status": 429,
+      "error": {
+        "code": "upstream_rate_limited",
+        "detail": "Model busy, retry later"
+      },
+      "headers": {
+        "Otari-Error-Code": "upstream_rate_limited",
+        "Otari-Request-ID": "fa9cefde-610c-4c99-a6b9-9749cf961cd3"
+      }
+    },
+    {
+      "event_index": 10,
+      "status": 429,
+      "error": {
+        "code": "upstream_rate_limited",
+        "detail": "Model busy, retry later"
+      },
+      "headers": {
+        "Otari-Error-Code": "upstream_rate_limited",
+        "Otari-Request-ID": "03856d70-2058-472d-ac0f-59e0a01081c0"
+      }
+    },
+    {
+      "event_index": 12,
+      "status": 429,
+      "error": {
+        "code": "upstream_rate_limited",
+        "detail": "Model busy, retry later"
+      },
+      "headers": {
+        "Otari-Error-Code": "upstream_rate_limited",
+        "Otari-Request-ID": "59e7eb18-b6b5-4178-9b97-9b540b04f0df"
+      }
+    }
+  ],
+  "otari_key_budget_refusal": {
+    "event_index": 15,
+    "status": 403,
+    "error": {
+      "code": "budget_exceeded",
+      "detail": "API key has $0.001858 of budget remaining, less than this request's estimated cost of $0.01"
+    },
+    "headers": {
+      "Otari-Budget-Scope": "api_token",
+      "Otari-Error-Code": "budget_exceeded",
+      "Otari-Request-ID": "8936c230-1a5e-4b01-a68f-9a25a2368000"
+    },
+    "key_budget": "separate API key with $0.005/day key budget (OTARI_API_KEY_ROGUE)"
+  },
+  "web_search_under_tight_budget": {
+    "event_index": 0,
+    "tool_calls": [
+      {
+        "id": "otari_ws_27bad055d3d34c59806034e0983d62f1",
+        "status": "failed",
+        "query": "open weight coding models 2024 CodeLlama StarCoder DeepSeek-Coder recent benchmarks"
+      },
+      {
+        "id": "otari_ws_8baf798ec85940cd9201ebbfdb7aa753",
+        "status": "failed",
+        "query": "open-source coding models 2024 benchmark"
+      },
+      {
+        "id": "otari_ws_3f20a67562ae45b8bbe67c9c61f27a8e",
+        "status": "failed",
+        "query": "Meta CodeLlama open weights release blog"
+      }
+    ],
+    "note": "all searches 'failed' with no error reason in otari_tool_calls"
+  },
+  "violations": [
+    {
+      "event_index": 1,
+      "rule": "allowed_models",
+      "detail": "blocked before sending: model anthropic/claude-fable-5 not allowed"
+    },
+    {
+      "event_index": 2,
+      "rule": "allowed_tools",
+      "detail": "blocked before sending: tool otari_web_fetch not allowed"
+    },
+    {
+      "event_index": 14,
+      "rule": "max_requests",
+      "detail": "blocked before sending: limit 12 reached"
+    },
+    {
+      "event_index": 15,
+      "rule": "budget_exceeded",
+      "detail": "Otari refused code execution: HTTP 403 budget_exceeded"
+    }
+  ]
+}

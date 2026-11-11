@@ -1,0 +1,55 @@
+{
+  "captured_at": "2026-11-11T19:08:29.846033+00:00",
+  "live": true,
+  "feature": "otari_web_search (max_uses 3) through routing policy receipt-research",
+  "request_model": "receipt-research",
+  "status": 200,
+  "headers": {
+    "Otari-Attempt-Count": "1",
+    "Otari-Fallback": "false",
+    "Otari-Model": "openai/gpt-oss-120b",
+    "Otari-Provider": "deepinfra",
+    "Otari-Request-ID": "d53927b7-d9f6-4345-a442-cf19b0d22e1b",
+    "Otari-Response-Duration-Ms": "65812"
+  },
+  "usage": {
+    "completion_tokens": 915,
+    "cost_usd": 0.031022,
+    "cost_usd_raw": "0.031022",
+    "pricing_source": "deployment",
+    "prompt_tokens": 23407,
+    "total_tokens": 24322
+  },
+  "web_search_calls": [
+    {
+      "id": "otari_ws_790ed2bde03b413c838f22fa2e713de4",
+      "status": "completed",
+      "query": "open weight coding models 2024 CodeLlama StarCoder DeepSeek-Coder recent benchmarks",
+      "sources": 5
+    },
+    {
+      "id": "otari_ws_ddb9013893bc47eeb69349521738a048",
+      "status": "completed",
+      "query": "CodeLlama 34B open source coding model benchmark HumanEval 2024",
+      "sources": 5
+    },
+    {
+      "id": "otari_ws_199bf01c933049e0a39a18d5239bcd1c",
+      "status": "completed",
+      "query": "General Compute coding model benchmarks Qwen 2.5 Coder DeepSeek Coder V2 CodeLlama HumanEval 2024",
+      "sources": 5
+    },
+    {
+      "id": "otari_ws_f3b1ad3bfc134e09aff78932a0323da9",
+      "status": "failed",
+      "query": "DeepSeek-Coder-V2 benchmark GPT-4 Turbo HumanEval",
+      "sources": 0
+    }
+  ],
+  "unique_sources_in_receipt": 14,
+  "run_a": {
+    "session_id": "ses_92d33fe6ab344751",
+    "verdict": "VERIFIED",
+    "cost_usd": 0.041197
+  }
+}

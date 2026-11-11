@@ -1,0 +1,40 @@
+{
+  "captured_at": "2026-11-11T19:08:29.846033+00:00",
+  "live": true,
+  "feature": "Otari inline mcp_servers -> Receipt MCP server (temporary cloudflared quick tunnel, closed after capture)",
+  "mcp_url_shape": "https://<random>.trycloudflare.com/mcp",
+  "status": 200,
+  "headers": {
+    "Otari-Attempt-Count": "1",
+    "Otari-Fallback": "false",
+    "Otari-Model": "openai/gpt-oss-120b",
+    "Otari-Provider": "deepinfra",
+    "Otari-Request-ID": "0d006b44-fd18-463d-bcd3-a18ab2c590d6",
+    "Otari-Response-Duration-Ms": "11235"
+  },
+  "usage": {
+    "completion_tokens": 168,
+    "cost_usd": 0.000121,
+    "cost_usd_raw": "0.000121",
+    "pricing_source": "deployment",
+    "prompt_tokens": 2497,
+    "total_tokens": 2665
+  },
+  "otari_tool_calls": [
+    {
+      "id": "otari_mcp_39a51f176e2a4e4ab89122c935fb7649",
+      "type": "mcp",
+      "status": "completed",
+      "name": "receipt_check"
+    },
+    {
+      "id": "otari_mcp_11872b8524384f3da388ccac7a39bc98",
+      "type": "mcp",
+      "status": "completed",
+      "name": "receipt_check"
+    }
+  ],
+  "note_on_arguments": "otari_tool_calls MCP entries carry name and output but no arguments (matches otari#3148)",
+  "auditor_answer": "Accept Agent\u202fA \u2013 receipt PASS, stayed within its $0.06 budget.  \nReject Agent\u202fB \u2013 receipt FAIL due to multiple mandate violations (blocked model, blocked tool, request limit exceeded, and budget exceeded).  \nReason: the receipt lists the specific violations causing the FAIL verdict.",
+  "auditor_session_id": "ses_ad41b998260b4242"
+}
