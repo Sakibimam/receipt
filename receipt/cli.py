@@ -32,9 +32,12 @@ def verify(
     file: Path,
     as_json: bool = typer.Option(False, "--json", help="Print the report as JSON."),
     key: str | None = typer.Option(None, help="Require this signer public key (hex)."),
+    witness: bool = typer.Option(
+        False, help="Also reconcile every call with Otari's usage ledger (needs OTARI_API_KEY)."
+    ),
 ) -> None:
     """Verify a receipt. Exit code 0 = PASS, 1 = FAIL."""
-    report = verify_receipt(json.loads(file.read_text()), expected_key=key)
+    report = verify_receipt(json.loads(file.read_text()), expected_key=key, witness=witness)
     typer.echo(json.dumps(report.to_dict(), indent=2) if as_json else report.render())
     raise typer.Exit(0 if report.ok else 1)
 

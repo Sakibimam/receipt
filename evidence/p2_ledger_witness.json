@@ -1,0 +1,136 @@
+{
+  "captured_at": "2026-11-11T17:38:43.462Z",
+  "live": true,
+  "feature": "Otari usage ledger as second witness (GET /api/v1/usage/requests/{id})",
+  "request_id": "5d481c82-a561-47da-b100-13127176122b",
+  "receipt_cost_usd": 2.3e-05,
+  "honest_receipt": {
+    "ok": true,
+    "verdict": "PASS",
+    "failing_events": [],
+    "violations": [],
+    "checks": [
+      {
+        "name": "schema",
+        "ok": true,
+        "detail": "",
+        "events": []
+      },
+      {
+        "name": "signature",
+        "ok": true,
+        "detail": "",
+        "events": []
+      },
+      {
+        "name": "hash chain",
+        "ok": true,
+        "detail": "",
+        "events": []
+      },
+      {
+        "name": "root hash",
+        "ok": true,
+        "detail": "",
+        "events": []
+      },
+      {
+        "name": "event count",
+        "ok": true,
+        "detail": "",
+        "events": []
+      },
+      {
+        "name": "mandate hash",
+        "ok": true,
+        "detail": "",
+        "events": []
+      },
+      {
+        "name": "recomputed totals",
+        "ok": true,
+        "detail": "",
+        "events": []
+      },
+      {
+        "name": "within mandate",
+        "ok": true,
+        "detail": "mandate 'p2-live'",
+        "events": []
+      },
+      {
+        "name": "otari ledger witness",
+        "ok": true,
+        "detail": "1/1 calls match Otari's ledger",
+        "events": []
+      }
+    ]
+  },
+  "forged_receipt_resigned_by_owner": {
+    "ok": false,
+    "verdict": "FAIL",
+    "failing_events": [
+      0
+    ],
+    "violations": [],
+    "checks": [
+      {
+        "name": "schema",
+        "ok": true,
+        "detail": "",
+        "events": []
+      },
+      {
+        "name": "signature",
+        "ok": true,
+        "detail": "",
+        "events": []
+      },
+      {
+        "name": "hash chain",
+        "ok": true,
+        "detail": "",
+        "events": []
+      },
+      {
+        "name": "root hash",
+        "ok": true,
+        "detail": "",
+        "events": []
+      },
+      {
+        "name": "event count",
+        "ok": true,
+        "detail": "",
+        "events": []
+      },
+      {
+        "name": "mandate hash",
+        "ok": true,
+        "detail": "",
+        "events": []
+      },
+      {
+        "name": "recomputed totals",
+        "ok": true,
+        "detail": "",
+        "events": []
+      },
+      {
+        "name": "within mandate",
+        "ok": true,
+        "detail": "mandate 'p2-live'",
+        "events": []
+      },
+      {
+        "name": "otari ledger witness",
+        "ok": false,
+        "detail": "0/1 calls match Otari's ledger",
+        "events": [
+          0
+        ]
+      }
+    ]
+  },
+  "note": "Forged receipt: cost edited to 0, chain rebuilt and re-signed with the owner's own key. Only the Otari ledger check catches it."
+}

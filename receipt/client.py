@@ -12,6 +12,7 @@ from typing import Any
 
 from dotenv import load_dotenv
 
+from receipt.chain import canonical, sha256_hex
 from receipt.mock import MockGateway
 from receipt.session import Session
 
@@ -85,9 +86,11 @@ class OtariClient:
         api_key: str | None = None,
         base_url: str | None = None,
         force_mock: bool = False,
+        keep_content: bool = True,
     ) -> None:
         load_dotenv()
         self.session = session
+        self.keep_content = keep_content
         self.base_url = base_url or os.environ.get("OTARI_BASE_URL") or DEFAULT_BASE_URL
         key = api_key or os.environ.get("OTARI_API_KEY") or ""
         self.mock = force_mock or not key
@@ -122,6 +125,8 @@ class OtariClient:
             "user": user,
             "end_user_budget": end_user_budget,
             "metadata": metadata,
+            # Content is committed by hash so receipts can be shared without leaking prompts.
+            "messages_sha256": sha256_hex(canonical(messages)),
         }
         result = (
             self._mock_call(model, messages)
@@ -139,7 +144,8 @@ class OtariClient:
             "response_model": result.model,
             "usage": result.usage,
             "tool_calls": result.tool_calls,
-            "content_preview": result.content[:MAX_TEXT],
+            "content_sha256": sha256_hex(result.content),
+            "content_preview": result.content[:MAX_TEXT] if self.keep_content else "",
         }
         if result.error:
             data["error"] = result.error
